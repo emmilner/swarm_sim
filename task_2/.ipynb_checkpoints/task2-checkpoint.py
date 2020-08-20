@@ -49,8 +49,8 @@ counter = 1
 finished = False
 ani = True
 if ani == True:
-	num_agents = 70
-	num_boxes = 50
+#	num_agents = 70
+#	num_boxes = 50
 	marker_size = 1000/width
 	
 class swarm():
@@ -276,41 +276,32 @@ def random_walk(swarm):
 			
 ##########################################################
 
-if ani == True: 
-	swarm = swarm(num_agents)
-	boxes = boxes(num_boxes)
-	swarm.gen_agents()
-	boxes.check_for_boxes_set_up(swarm)
+def set_up(time,r,b):
+	global counter
+	counter = 1
+	global finished 
+	finished = False
+	num_agents = r
+	num_boxes = b
+	swarm_group = swarm(num_agents)
+	box_group = boxes(num_boxes)
+	swarm_group.gen_agents()
+	box_group.check_for_boxes_set_up(swarm_group)
 	
-	boxes.check_for_boxes(swarm)
+	box_group.check_for_boxes(swarm_group)
 	
 	warehouse_map = warehouse.map()
 	warehouse_map.warehouse_map(width,height)
 	warehouse_map.gen()
-	swarm.map = warehouse_map
-	swarm.iterate(boxes)
-	boxes.iterate(swarm)
+	swarm_group.map = warehouse_map
+	swarm_group.iterate(box_group)
+	box_group.iterate(swarm_group)
 	
-	fig = plt.figure()
-	ax = plt.axes(xlim=(0, width), ylim=(0, height))
-	dot, = ax.plot([swarm.x[i] for i in range(swarm.num_agents)],[swarm.y[i] for i in range(num_agents)],
-				  'ko',
-				  markersize = marker_size, fillstyle = 'none')
-	box, = ax.plot([boxes.bx[i] for i in range(boxes.num_boxes)],[boxes.by[i] for i in range(num_boxes)], 'rs')
-	sequ, = ax.plot([boxes.bx[boxes.seq]],[boxes.by[boxes.seq]], 'gs')
-
-	
-	def animate(i):
-		swarm.iterate(boxes)
-		boxes.iterate(swarm)
-		
-		dot.set_data([swarm.x[n] for n in range(num_agents)],[swarm.y[n] for n in range(num_agents)])
-		box.set_data([boxes.bx[n] for n in range(boxes.num_boxes)],[boxes.by[n] for n in range(boxes.num_boxes)])
-		sequ.set_data([boxes.bx[boxes.seq]],[boxes.by[boxes.seq]])
-		plt.title(str(boxes.seq))
+	while counter <= time:
+		swarm_group.iterate(box_group)
+		box_group.iterate(swarm_group)
 		if finished == True:
+			return counter
 			exit()
-	
-	anim = animation.FuncAnimation(fig, animate, frames=200, interval=20)
-	plt.show()
+	return time
 	
