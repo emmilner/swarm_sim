@@ -49,7 +49,7 @@ counter = 1
 finished = False
 ani = True
 if ani == True:
-	num_agents = 50
+	num_agents = 70
 	num_boxes = 5
 	marker_size = 1000/width
 	
@@ -115,6 +115,7 @@ class boxes():
 		self.box_c = self.generate_boxes()
 		self.check_b = [False for i in range(self.num_boxes)] # True if box is moving
 		self.robot_carrier = [] # Value at index = box number is the robot number that is currently moving that box
+		self.seq = 0
 		for i in range(self.num_boxes):
 			self.robot_carrier.append(-1)
 		self.delivered = [False for i in range(self.num_boxes)]# True if box delivered
@@ -164,15 +165,19 @@ class boxes():
 
 	def iterate(self,robots): 
 		self.check_for_boxes(robots)
-		for i in range(self.num_boxes):
-			if self.check_b[i] == True and self.delivered[i] == False: #self.bx[i] <= width-exit_width:
+		for i in range(self.seq, self.num_boxes):
+			print(self.seq)
+# if box is moving on a robot and has not yet been delivered 
+			if self.check_b[i] == True and self.delivered[i] == False: 
 				self.bx[i] = robots.x[self.robot_carrier[i]]
 				self.by[i] = robots.y[self.robot_carrier[i]]
-				if self.bx[i] > width-exit_width:
+				if self.bx[i] > width-exit_width and i == self.seq:
 					self.delivered[i] = True
 					robots.check_r[self.robot_carrier[i]] = False
 					robots.holding_box[self.robot_carrier[i]] = -1
-		return self.delivered
+					self.seq += 1
+					print(self.seq)
+		return (self.delivered, self.seq)
 								
 ## Avoidance behaviour for avoiding the warehouse walls ##		
 def avoidance(rob_c,map): # input the agent positions array and the warehouse map 
@@ -272,52 +277,6 @@ def random_walk(swarm):
 	swarm.y = swarm.rob_c[:,1]
 			
 ##########################################################
-def run(num_box):
-#n = int(sys.argv[1]) # num of robots
-#b = int(sys.argv[2])  # num of boxes
-	b = num_box
-	num_trials = 5
-	time_for_trial = 10000
-	time_taken_dict = {}
-	
-	for n in range(5,150,5):
-		time_taken_dict[n] = time_for_trial
-		for trial in range(num_trials):
-			time_taken = 0.
-			boxes_delivered = []
-			collecting_robot_numbers = []
-			box_to_collect_num = []
-			average_time = []
-			num_box_del = 0.
-			swarm_group = swarm(n)
-			box_group = boxes(b)
-			this_swarm = swarm_group
-			this_swarm.gen_agents()
-
-			warehouse_map = warehouse.map() # call the warehouse script to generate the warehouse walls
-			warehouse_map.warehouse_map(width,height) # create a warehouse of size width by height (as seen from bove). Width and height are both declared at the start of the code by the variables 'width' and 'height'
-			warehouse_map.gen() # generates the wall obstacles and limits
-			this_swarm.map = warehouse_map # declares the warhouse as the map that the swarm is in 
-			these_boxes = box_group
-			these_boxes.check_for_boxes_set_up(this_swarm)
-			these_boxes.check_for_boxes(this_swarm)
-			for t in range(time_for_trial):
-				this_swarm.iterate(these_boxes)
-				num_box_delivered = these_boxes.iterate(this_swarm)
-				num_box_del = num_box_delivered.count(True)
-				if num_box_del == these_boxes.num_boxes: 
-					num_box_del = 0 
-					average_time.append(t)
-					break
-				if t == time_for_trial-1 and num_box_del < these_boxes.num_boxes:
-					average_time.append(time_for_trial)
-					average_time.append(time_for_trial)
-		time_a = np.median(average_time)
-		time_taken_dict[n] = time_a
-		boxes_delivered.append(num_box_del)
-		#robot_dict[rob] = num_box_del
-	return time_taken_dict
-
 
 if ani == True: 
 	swarm = swarm(num_agents)
@@ -340,6 +299,8 @@ if ani == True:
 				  'ko',
 				  markersize = marker_size, fillstyle = 'none')
 	box, = ax.plot([boxes.bx[i] for i in range(boxes.num_boxes)],[boxes.by[i] for i in range(num_boxes)], 'rs')
+	sequ, = ax.plot([boxes.bx[boxes.seq]],[boxes.by[boxes.seq]], 'ks')
+
 	
 	def animate(i):
 		swarm.iterate(boxes)
@@ -347,7 +308,8 @@ if ani == True:
 		
 		dot.set_data([swarm.x[n] for n in range(num_agents)],[swarm.y[n] for n in range(num_agents)])
 		box.set_data([boxes.bx[n] for n in range(boxes.num_boxes)],[boxes.by[n] for n in range(boxes.num_boxes)])
-		plt.title(str(counter))
+		sequ.set_data([boxes.bx[boxes.seq]],[boxes.by[boxes.seq]])
+		plt.title(str(boxes.seq))
 		if finished == True:
 			exit()
 	
