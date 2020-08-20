@@ -1,6 +1,6 @@
 '''
 Swarm Warehouse with Boxes Code:
-Displays a bird's eye view of a warehouse with robots moving around, avoiding the walls and each other. Boxes are picked up and moved to exit zone by robots.
+Displays a bird's eye view of a warehouse with robots moving around, avoiding the walls and each other. Boxes are picked up and moved to exit zone by robots. The boxes are requested to be delivered in a given sequence.
 
 ** Requires the script warehouse.py to be in the same folder as this script as it is called in the code **
 
@@ -14,12 +14,7 @@ width of warehouse is 5m
 height (depth) of warehouse is 5m 
 '''
 # Still to do
-	# Put counts on graphic
-	# Get meaningful results saved without graphic needing to run 
-	# Exit zones 
 	# Consider other exit zone options e.g. square in the centre (so that wall avoidance doesn't come in)
-	# Collect data to be plotted (without running Graphic)
-	# HPC run 1-100 robots etc.
 	# if delivered change the number of boxes.num_boxes so don't have to keep plotting them?
 	# avoid boxes if you already have a box 
 
@@ -58,7 +53,6 @@ if ani == True:
 	num_boxes = 5
 	marker_size = 1000/width
 	
-
 class swarm():
 	def __init__(self,num_agents):
 		self.rob_c = []
@@ -140,39 +134,38 @@ class boxes():
 			self.by.append(self.box_c[i,1])
 			
 	def check_for_boxes(self,robots):
-		box_to_rob = cdist(self.box_c,robots.rob_c)
-		btr_list = convert_to_list(box_to_rob)
-		mini = box_to_rob.min(1)
-		qu = mini <= box_range
-		if True in qu:
+		box_to_rob = cdist(self.box_c,robots.rob_c) # find the distances from every box to every robot
+		btr_list = convert_to_list(box_to_rob) # convert those collection of distances to a list for ease
+		mini = box_to_rob.min(1) # find the minimum distance per box
+		qu = mini <= box_range # True/False list to question: is this box within range of the robot
+		if True in qu: # if at least one box is within range 
 			for i in range(self.num_boxes):
-				if self.check_b[i] == False and qu[i] == True:
-					minimum = mini[i]
-					btr_list_current = btr_list[i]
+				if self.check_b[i] == False and qu[i] == True: # if box is available and within range of robot
+					minimum = mini[i] # select the minimum distance to a robot for this box, i 
+					btr_list_current = btr_list[i] # select the list of box-robot distances for this box, i
 					btr_list_current = convert_to_list(btr_list_current)
-					counted = btr_list_current.count(minimum)
-					index = btr_list_current.index(minimum)
-					if robots.check_r[index] == False:
-						self.check_b[i] = True
-						robots.check_r[index] = True
-						self.robot_carrier[i] = index
-						robots.holding_box[index] = i 
+					counted = btr_list_current.count(minimum) # count the number of times that minimum distance occurs in the list of box-robot distances
+					index = btr_list_current.index(minimum) # find the robot number that is closest
+					if robots.check_r[index] == False: # if the robot is available
+						self.check_b[i] = True # the box is now picked up
+						robots.check_r[index] = True # the robot now has a box
+						self.robot_carrier[i] = index # the robot is assigned to that box
+						robots.holding_box[index] = i # the box is assigned to that robot
 					
-					elif robots.check_r[index] == True:
-						for s in range(1,counted):
-							index = btr_list_current.index(minimum,s)
-							if robots.check_r[index] == False:
+					elif robots.check_r[index] == True: # if the robot was carrying a box already 
+						for s in range(1,counted): # then go through the other robots which are an equally close distance to the box
+							index = btr_list_current.index(minimum,s) 
+							if robots.check_r[index] == False: # do the same as above for this robot/box
 								self.check_b[i] = True
 								robots.check_r[index] = True
 								self.robot_carrier[i] = index
 								robots.holding_box[index] = i
 								break 
-								
-					
-	def iterate(self,robots):
+
+	def iterate(self,robots): 
 		self.check_for_boxes(robots)
 		for i in range(self.num_boxes):
-			if self.check_b[i] == True and self.bx[i] <= width-exit_width:
+			if self.check_b[i] == True and self.delivered[i] == False: #self.bx[i] <= width-exit_width:
 				self.bx[i] = robots.x[self.robot_carrier[i]]
 				self.by[i] = robots.y[self.robot_carrier[i]]
 				if self.bx[i] > width-exit_width:
