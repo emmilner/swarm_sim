@@ -7,5 +7,5 @@ module add languages/python-3.7.7-anaconda-2020.20-gprMAX
 cd swarm_and_boxes
 
 # Execute code
-time python run_animate.py
+time python run_task1.py
 sleep 60 
