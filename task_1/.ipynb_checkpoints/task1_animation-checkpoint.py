@@ -201,23 +201,23 @@ def avoidance(rob_c,map): # input the agent positions array and the warehouse ma
 		
 	# Fy is Force on the agent in y direction due to proximity to the horziontal walls 
 	# This equation was designed to be very high when the agent is close to the wall and close to 0 otherwise
-	#Fy = np.exp(-2*abs(difference_in_x) + 20)
+	Fy = np.exp(-2*abs(difference_in_x) + 20)
 	# The Force is zero if the interaction is FALSE meaning that the agent is safely within the warehouse boundary (so that is does not keep going forever if there is a mistake)
-	#Fy = Fy*difference_in_x*interaction	
+	Fy = Fy*difference_in_x*interaction	
 	
-	Fy = 3/difference_in_x
-	Fy = Fy*interaction
+	#Fy = 3/difference_in_x
+	#Fy = Fy*interaction
 	
 	# Same as x boundaries but now in y
 	y_lower_wall_limit = agentsy[:, np.newaxis] >= map.limv.T[0] # limv is vertical walls 
 	y_upper_wall_limit = agentsy[:, np.newaxis] <= map.limv.T[1]
 	interaction = y_lower_wall_limit*y_upper_wall_limit
 	
-	#Fx = np.exp(-2*abs(difference_in_y) + 20)
-	#Fx = Fx*difference_in_y*interaction
+	Fx = np.exp(-2*abs(difference_in_y) + 20)
+	Fx = Fx*difference_in_y*interaction
 	
-	Fx = 3/difference_in_y
-	Fx = Fx*interaction 
+	#Fx = 3/difference_in_y
+	#Fx = Fx*interaction 
 	
 	# For each agent the force in x and y is the sum of the forces from each wall
 	Fx = np.sum(Fx, axis=1)
