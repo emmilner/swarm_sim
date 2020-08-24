@@ -41,16 +41,16 @@ repulsion_distance = radius/2 # Distance at which repulsion is first felt (3)
 #marker_size = 14 # Diameter of circular marker on plot of warehouse (14)
 
 #num_boxes = 3
-box_radius = 3
-box_range = 3 # range at which a box can be picked up 
+box_radius = radius
+box_range = box_radius # range at which a box can be picked up 
 exit_width = int(0.2*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
 counter = 1
 finished = False
 ani = True
 if ani == True:
-	num_agents = 50
-	num_boxes = 5
+	num_agents = 125
+	num_boxes = 100
 	marker_size = width/(width/radius) # diameter
 	
 class swarm():
@@ -340,7 +340,7 @@ if ani == True:
 	dot, = ax.plot([swarm.x[i] for i in range(swarm.num_agents)],[swarm.y[i] for i in range(num_agents)],
 				  'ko',
 				  markersize = marker_size, fillstyle = 'none')
-	box, = ax.plot([boxes.bx[i] for i in range(boxes.num_boxes)],[boxes.by[i] for i in range(num_boxes)], 'rs')
+	box, = ax.plot([boxes.bx[i] for i in range(boxes.num_boxes)],[boxes.by[i] for i in range(num_boxes)], 'rs', markersize = marker_size)
 	#cir, = ax.plot([radius,radius*3,radius*5,radius*7,10,10,10,10],[10,10,10,10,radius,radius*3,radius*5,radius*7],'ko',markersize = marker_size)
 	
 	plt.axis('square')
