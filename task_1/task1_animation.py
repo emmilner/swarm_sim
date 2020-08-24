@@ -34,8 +34,8 @@ import os
 ### INPUTS ###
 #num_agents = 20 # Number of agents in swarm (default 50)
 radius = 12.5 # Radius of single agent (5)
-width = 500#-(radius/2) # Width of warehouse (100)
-height = 500#-(radius/2) # Height (depth) of warehouse (100)
+width = 500 # Width of warehouse (100)
+height = 500 # Height (depth) of warehouse (100)
 speed = 2 # Agent speed (0.5)
 repulsion_distance = radius/2 # Distance at which repulsion is first felt (3)
 #marker_size = 14 # Diameter of circular marker on plot of warehouse (14)

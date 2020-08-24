@@ -32,6 +32,7 @@ import sys
 import os
 
 ### INPUTS ###
+u = 1
 #num_agents = 20 # Number of agents in swarm (default 50)
 radius = 12.5 # Radius of single agent (5)
 width = 500#-(radius/2) # Width of warehouse (100)

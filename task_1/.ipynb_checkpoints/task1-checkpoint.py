@@ -38,24 +38,25 @@ import os
 
 ### INPUTS ###
 #num_agents = 20 # Number of agents in swarm (default 50)
-radius = 5 # Radius of single agent (5)
+radius = 12.5 # Radius of single agent (5)
 width = 500 # Width of warehouse (100)
 height = 500 # Height (depth) of warehouse (100)
 speed = 2 # Agent speed (0.5)
-repulsion_distance = radius # Distance at which repulsion is first felt (3)
+repulsion_distance = radius/2 # Distance at which repulsion is first felt (3)
 #marker_size = 14 # Diameter of circular marker on plot of warehouse (14)
 
 #num_boxes = 3
-box_radius = 3
-box_range = 5 # range at which a box can be picked up 
+box_radius = radius
+box_range = box_radius # range at which a box can be picked up 
 exit_width = int(0.2*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
-ani = True
+counter = 1
+finished = False
+ani = False
 if ani == True:
-	#num_agents = int(sys.argv[1])
-	#num_boxes = int(sys.argv[2])
-	marker_size = 1000/width
-	
+	num_agents = 125
+	num_boxes = 100
+	marker_size = width*0.5/20 #radius
 
 class swarm():
 	def __init__(self,num_agents):
@@ -204,23 +205,23 @@ def avoidance(rob_c,map): # input the agent positions array and the warehouse ma
 		
 	# Fy is Force on the agent in y direction due to proximity to the horziontal walls 
 	# This equation was designed to be very high when the agent is close to the wall and close to 0 otherwise
-	#Fy = np.exp(-2*abs(difference_in_x) + 20)
+	Fy = np.exp(-2*abs(difference_in_x) + 20)
 	# The Force is zero if the interaction is FALSE meaning that the agent is safely within the warehouse boundary (so that is does not keep going forever if there is a mistake)
-	#Fy = Fy*difference_in_x*interaction	
+	Fy = Fy*difference_in_x*interaction	
 	
-	Fy = 3/difference_in_x
-	Fy = Fy*interaction
+	#Fy = 3/difference_in_x
+	#Fy = Fy*interaction
 	
 	# Same as x boundaries but now in y
 	y_lower_wall_limit = agentsy[:, np.newaxis] >= map.limv.T[0] # limv is vertical walls 
 	y_upper_wall_limit = agentsy[:, np.newaxis] <= map.limv.T[1]
 	interaction = y_lower_wall_limit*y_upper_wall_limit
 	
-	#Fx = np.exp(-2*abs(difference_in_y) + 20)
-	#Fx = Fx*difference_in_y*interaction
+	Fx = np.exp(-2*abs(difference_in_y) + 20)
+	Fx = Fx*difference_in_y*interaction
 	
-	Fx = 3/difference_in_y
-	Fx = Fx*interaction 
+	#Fx = 3/difference_in_y
+	#Fx = Fx*interaction 
 	
 	# For each agent the force in x and y is the sum of the forces from each wall
 	Fx = np.sum(Fx, axis=1)
@@ -275,52 +276,6 @@ def random_walk(swarm):
 	swarm.y = swarm.rob_c[:,1]
 			
 ##########################################################
-def run(num_box):
-#n = int(sys.argv[1]) # num of robots
-#b = int(sys.argv[2])  # num of boxes
-	b = num_box
-	num_trials = 5
-	time_for_trial = 10000
-	time_taken_dict = {}
-	
-	for n in range(5,150,5):
-		time_taken_dict[n] = time_for_trial
-		for trial in range(num_trials):
-			time_taken = 0.
-			boxes_delivered = []
-			collecting_robot_numbers = []
-			box_to_collect_num = []
-			average_time = []
-			num_box_del = 0.
-			swarm_group = swarm(n)
-			box_group = boxes(b)
-			this_swarm = swarm_group
-			this_swarm.gen_agents()
-
-			warehouse_map = warehouse.map() # call the warehouse script to generate the warehouse walls
-			warehouse_map.warehouse_map(width,height) # create a warehouse of size width by height (as seen from bove). Width and height are both declared at the start of the code by the variables 'width' and 'height'
-			warehouse_map.gen() # generates the wall obstacles and limits
-			this_swarm.map = warehouse_map # declares the warhouse as the map that the swarm is in 
-			these_boxes = box_group
-			these_boxes.check_for_boxes_set_up(this_swarm)
-			these_boxes.check_for_boxes(this_swarm)
-			for t in range(time_for_trial):
-				this_swarm.iterate(these_boxes)
-				num_box_delivered = these_boxes.iterate(this_swarm)
-				num_box_del = num_box_delivered.count(True)
-				if num_box_del == these_boxes.num_boxes: 
-					num_box_del = 0 
-					average_time.append(t)
-					break
-				if t == time_for_trial-1 and num_box_del < these_boxes.num_boxes:
-					average_time.append(time_for_trial)
-					average_time.append(time_for_trial)
-		time_a = np.median(average_time)
-		time_taken_dict[n] = time_a
-		boxes_delivered.append(num_box_del)
-		#robot_dict[rob] = num_box_del
-	return time_taken_dict
-################################
 
 def set_up(time,r,b):
 	global counter
@@ -350,3 +305,41 @@ def set_up(time,r,b):
 			return counter
 			exit()
 	return time
+
+if ani == True: 
+	swarm = swarm(num_agents)
+	boxes = boxes(num_boxes)
+	swarm.gen_agents()
+	boxes.check_for_boxes_set_up(swarm)
+	
+	boxes.check_for_boxes(swarm)
+	
+	warehouse_map = warehouse.map()
+	warehouse_map.warehouse_map(width,height)
+	warehouse_map.gen()
+	swarm.map = warehouse_map
+	swarm.iterate(boxes)
+	boxes.iterate(swarm)
+	
+	fig = plt.figure()
+	ax = plt.axes(xlim=(0, width), ylim=(0, height))
+	dot, = ax.plot([swarm.x[i] for i in range(swarm.num_agents)],[swarm.y[i] for i in range(num_agents)],
+				  'ko',
+				  markersize = marker_size, fillstyle = 'none')
+	box, = ax.plot([boxes.bx[i] for i in range(boxes.num_boxes)],[boxes.by[i] for i in range(num_boxes)], 'rs', markersize = marker_size)
+	#cir, = ax.plot([radius,radius*3,radius*5,radius*7,10,10,10,10],[10,10,10,10,radius,radius*3,radius*5,radius*7],'ko',markersize = marker_size)
+	
+	plt.axis('square')
+	
+	def animate(i):
+		swarm.iterate(boxes)
+		boxes.iterate(swarm)
+		
+		dot.set_data([swarm.x[n] for n in range(num_agents)],[swarm.y[n] for n in range(num_agents)])
+		box.set_data([boxes.bx[n] for n in range(boxes.num_boxes)],[boxes.by[n] for n in range(boxes.num_boxes)])
+		plt.title(str(counter))
+		if finished == True:
+			exit()
+	
+	anim = animation.FuncAnimation(fig, animate, frames=200, interval=20)
+	plt.show()
