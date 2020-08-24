@@ -334,9 +334,14 @@ if ani == True:
 		
 		dot.set_data([swarm.x[n] for n in range(num_agents)],[swarm.y[n] for n in range(num_agents)])
 		box.set_data([boxes.bx[n] for n in range(boxes.num_boxes)],[boxes.by[n] for n in range(boxes.num_boxes)])
-		plt.title(str(counter))
+		plt.title("Time is "+str(counter)+"s")
 		if finished == True:
 			exit()
 	
 	anim = animation.FuncAnimation(fig, animate, frames=200, interval=20)
+	plt.xlabel("Warehouse width (cm)")
+	plt.ylabel("Warehouse height (cm)")
+	ex = [width-exit_width, width-exit_width]
+	ey = [0, height]
+	plt.plot(ex,ey,':')
 	plt.show()
