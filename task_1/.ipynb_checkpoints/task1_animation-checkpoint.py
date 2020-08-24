@@ -51,7 +51,7 @@ ani = True
 if ani == True:
 	num_agents = 125
 	num_boxes = 100
-	marker_size = width/(width/radius) # diameter
+	marker_size = width*0.5/20 #radius #width/(width/radius) # diameter
 	
 class swarm():
 	def __init__(self,num_agents):
