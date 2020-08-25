@@ -327,6 +327,7 @@ if ani == True:
 	#cir, = ax.plot([radius,radius*3,radius*5,radius*7,10,10,10,10],[10,10,10,10,radius,radius*3,radius*5,radius*7],'ko',markersize = marker_size)
 	
 	plt.axis('square')
+	plt.axis([0,500,0,500])
 	
 	def animate(i):
 		swarm.iterate(boxes)
