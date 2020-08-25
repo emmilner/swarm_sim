@@ -31,7 +31,7 @@ from matplotlib import animation
 import scipy
 from scipy.spatial.distance import cdist, pdist, euclidean
 import pickle
-import C:\Users\Emma\swarm_sim\warehouse
+import warehouse
 #import swarm_animation
 import sys
 import os
@@ -98,7 +98,7 @@ class swarm():
 		global warehouse_map # sets the map everywhere
 		random_walk(self) # the robots move using the random walk function 
 		these_boxes = boxes
-		these_boxes.check_for_boxes(self)
+		#these_boxes.check_for_boxes(self)
 		global counter
 		global finished
 		counter = 1 + counter
