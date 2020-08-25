@@ -16,7 +16,7 @@ time_dict = file_opener("results/times_R125_B100")
 
 x = [] #robots
 y = [] #boxes
-for r in range(10,126,20):  ## 10 to 126 (per 5)
+for r in range(10,46,5):  ## 10 to 126 (per 5)
 	x.append(r)
 for b in range(10,101,10):  ## 10 to 101 (per 10)
 	y.append(b)
@@ -63,6 +63,6 @@ g = g.set_titles("{col_name}")
  
 # Add a title for the whole plo
 plt.subplots_adjust(top=0.92)
-g = g.fig.suptitle('Times')
+g = g.fig.suptitle('Time taken to complete task 1')
  
 plt.show()

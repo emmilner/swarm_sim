@@ -31,7 +31,7 @@ from matplotlib import animation
 import scipy
 from scipy.spatial.distance import cdist, pdist, euclidean
 import pickle
-import warehouse
+import C:\Users\Emma\swarm_sim\warehouse
 #import swarm_animation
 import sys
 import os
