@@ -41,15 +41,15 @@ repulsion_distance = radius/2 # Distance at which repulsion is first felt (3)
 
 #num_boxes = 3
 box_radius = radius
-box_range = box_radius # range at which a box can be picked up 
+box_range = 2*box_radius # range at which a box can be picked up 
 exit_width = int(0.2*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
 counter = 1
 finished = False
-ani = True
+ani = False
 if ani == True:
-	num_agents = 5
-	num_boxes = 5
+	num_agents = 50
+	num_boxes = 30
 	marker_size = width*0.5/20 #diameter
 	
 class swarm():
@@ -81,7 +81,7 @@ class swarm():
 		for i in range(self.num_agents): # for every agent generate a random staring position
 			# coordinates are anywhere within the warehouse but at least a robot radius from the wall so it does not start in the wall
 			a = (width-(2*radius))*np.random.random_sample() + radius # x coordinate 
-			b = (height-(2*radius))*np.random.random_sample() + radius # y coordinate
+			b = (height-(2*radius))*np.random.random_sample() + radius # y coordinate 
 			self.rob_c[i] = np.array([a,b]) # agent position is (x,y)
 		self.x = self.rob_c[0,:] # set to the array of x coordinates
 		self.y = self.rob_c[1,:] # set to the array of y coordinates
@@ -90,7 +90,7 @@ class swarm():
 	
 	def robot_iterate(self,boxes): # moves the positions forward in time 
 		global warehouse_map # sets the map everywhere
-		random_walk(self) # the robots move using the random walk function 
+		random_walk(self,boxes) # the robots move using the random walk function 
 		these_boxes = boxes
 		global counter
 		global finished
@@ -203,23 +203,17 @@ def avoidance(rob_c,map): # input the agent positions array and the warehouse ma
 		
 	# Fy is Force on the agent in y direction due to proximity to the horziontal walls 
 	# This equation was designed to be very high when the agent is close to the wall and close to 0 otherwise
-	Fy = np.exp(-2*abs(difference_in_x) + 20)
+	Fy = np.exp(-2*abs(difference_in_x) + 30)
 	# The Force is zero if the interaction is FALSE meaning that the agent is safely within the warehouse boundary (so that is does not keep going forever if there is a mistake)
 	Fy = Fy*difference_in_x*interaction	
-	
-#	Fy = 3/difference_in_x
-#	Fy = Fy*interaction
-	
+
 	# Same as x boundaries but now in y
 	y_lower_wall_limit = agentsy[:, np.newaxis] >= map.limv.T[0] # limv is vertical walls 
 	y_upper_wall_limit = agentsy[:, np.newaxis] <= map.limv.T[1]
 	interaction = y_lower_wall_limit*y_upper_wall_limit
 	
-	Fx = np.exp(-2*abs(difference_in_y) + 20)
+	Fx = np.exp(-2*abs(difference_in_y) + 30)
 	Fx = Fx*difference_in_y*interaction
-	
-	#Fx = 3/difference_in_y
-	#Fx = Fx*interaction 
 	
 	# For each agent the force in x and y is the sum of the forces from each wall
 	Fx = np.sum(Fx, axis=1)
@@ -229,7 +223,7 @@ def avoidance(rob_c,map): # input the agent positions array and the warehouse ma
 	return F
 	
 ## Movement function with agent-agent avoidance behaviours ## 
-def random_walk(swarm):
+def random_walk(swarm,boxes):
 	 
 	# Add noise to the heading function
 	noise = 0.01*np.random.randint(-50,50,(swarm.num_agents))
@@ -246,18 +240,27 @@ def random_walk(swarm):
 	
 	# Compute (euclidean == cdist) distance between agents
 	agent_distance = cdist(swarm.rob_c, swarm.rob_c)
+	box_dist = cdist(boxes.box_c,swarm.rob_c)
+
 	
 	# Compute vectors between agents
 	proximity_vectors = swarm.rob_c[:,:,np.newaxis]-swarm.rob_c.T[np.newaxis,:,:] 
+	proximity_to_boxes = boxes.box_c[:,:,np.newaxis] - swarm.rob_c.T[np.newaxis,:,:]
 	# Force on agent due to proximity to other agents
 	F_agent = R*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents-1)	
 	F_agent = np.sum(F_agent, axis =0).T # Sum of proximity forces
+	F_box = R*r*np.exp(-box_dist/r)[:,np.newaxis,:]*proximity_to_boxes/(boxes.num_boxes-1)
+	F_box = np.sum(F_box,axis=0)
 	
+	F_boxes = np.zeros([2,swarm.num_agents])
+	for i in range(swarm.num_agents):
+		F_boxes[0,i] = F_box[0,i] #robot x
+		F_boxes[1,i] = F_box[1,i] #robot y
 	# Force on agent due to proximity to walls
 	F_wall_avoidance = avoidance(swarm.rob_c, swarm.map)
 	
 	# Forces added together
-	F_agent += F_wall_avoidance + F_heading
+	F_agent += F_wall_avoidance + F_heading + F_boxes.T
 	F_x = F_agent.T[0] # Force in x
 	F_y = F_agent.T[1] # Force in y 
 	
@@ -328,7 +331,7 @@ if ani == True:
 	#cir, = ax.plot([radius,radius*3,radius*5,radius*7,10,10,10,10],[10,10,10,10,radius,radius*3,radius*5,radius*7],'ko',markersize = marker_size)
 	
 	plt.axis('square')
-	plt.axis([0,500,0,500])
+	plt.axis([0,width,0,height])
 	def animate(i):
 		swarm.robot_iterate(boxes)
 		boxes.box_iterate(swarm)

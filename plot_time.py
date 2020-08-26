@@ -31,15 +31,15 @@ def file_opener(name):
 	file_in.close()
 	return time_dict
 if Task == 1:
-	max_time = 50000
+	max_time = 50001
 	time_dict = file_opener("task_1/results/times_R125_B100")
 if Task == 2:
-	max_time = 100000
-	time_dict = file_opener("task_2/results/times_R125_B100")
+	max_time = 100001
+	time_dict = file_opener("task_2/task_2a/results/task_2_results_times_b_100_r_60")
 
 x = [] #robots
 y = [] #boxes
-for r in range(10,126,5):  ## 10 to 126 (per 5)
+for r in range(10,61,10):  ## 10 to 126 (per 5)
 	x.append(r)
 for b in range(10,101,10):  ## 10 to 101 (per 10)
 	y.append(b)
