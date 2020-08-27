@@ -60,13 +60,6 @@ if ani == True:
 class swarm():
 	def __init__(self,num_agents):
 		self.rob_c = []
-		#self.gen_agents() # coordinate of agent centre point
-		self.x = [] 
-		#np.zeros(self.num_agents) # Agent x coordinates
-		self.y = [] 
-		#np.zeros(self.num_agents) # Agent y coordinates
-		#self.vel_x = np.zeros(self.num_agents) # Agent x velocity
-		#self.vel_y = np.zeros(self.num_agents) # Agent y velocity
 		self.speed = speed # Agent speed 
 		self.heading = []
 		#0.0314*np.random.randint(-100,100,self.num_agents) # create a new heading direction for each agent (this is pi * angle in degrees between -100 and + 100 = angle in radians)
@@ -88,8 +81,6 @@ class swarm():
 			a = (width-(2*radius))*np.random.random_sample() + radius # x coordinate 
 			b = (height-(2*radius))*np.random.random_sample() + radius # y coordinate
 			self.rob_c[i] = np.array([a,b]) # agent position is (x,y)
-		self.x = self.rob_c[0,:] # set to the array of x coordinates
-		self.y = self.rob_c[1,:] # set to the array of y coordinates
 		
 		return self.rob_c
 	
@@ -170,8 +161,8 @@ class boxes():
 		for i in range(self.seq, self.num_boxes):
 # if box is moving on a robot and has not yet been delivered 
 			if self.check_b[i] == True and self.delivered[i] == False: 
-				self.bx[i] = robots.x[self.robot_carrier[i]]
-				self.by[i] = robots.y[self.robot_carrier[i]]
+				self.bx[i] = robots.rob_c[self.robot_carrier[i],0]
+				self.by[i] = robots.rob_c[self.robot_carrier[i],1]
 				if self.bx[i] > width-exit_width and i == self.seq:
 					self.delivered[i] = True
 					robots.check_r[self.robot_carrier[i]] = False
@@ -276,10 +267,7 @@ def random_walk(swarm,boxes):
 	M = -np.array([[move_x[n], move_y[n]] for n in range(0, swarm.num_agents)])
 	
 	# New agent positions 
-	swarm.rob_c += M
-	swarm.x = swarm.rob_c[:,0]
-	swarm.y = swarm.rob_c[:,1]
-			
+	swarm.rob_c += M			
 ##########################################################
 
 def set_up(time,r,b):
@@ -328,7 +316,7 @@ if ani == True:
 	
 	fig = plt.figure()
 	ax = plt.axes(xlim=(0, width), ylim=(0, height))
-	dot, = ax.plot([swarm.x[i] for i in range(swarm.num_agents)],[swarm.y[i] for i in range(num_agents)],
+	dot, = ax.plot([swarm.rob_c[i,0] for i in range(swarm.num_agents)],[swarm.rob_c[i,1] for i in range(num_agents)],
 				  'ko',
 				  markersize = marker_size, fillstyle = 'none')
 	box, = ax.plot([boxes.bx[i] for i in range(boxes.num_boxes)],[boxes.by[i] for i in range(num_boxes)], 'rs', markersize = marker_size)
@@ -343,7 +331,7 @@ if ani == True:
 		swarm.robot_iterate(boxes)
 		boxes.box_iterate(swarm)
 		
-		dot.set_data([swarm.x[n] for n in range(num_agents)],[swarm.y[n] for n in range(num_agents)])
+		dot.set_data([swarm.rob_c[n,0] for n in range(num_agents)],[swarm.rob_c[n,1] for n in range(num_agents)])
 		box.set_data([boxes.bx[n] for n in range(boxes.num_boxes)],[boxes.by[n] for n in range(boxes.num_boxes)])
 		seq.set_data([boxes.bx[boxes.seq],[boxes.by[boxes.seq]]])
 
