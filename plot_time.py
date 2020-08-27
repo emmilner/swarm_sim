@@ -32,16 +32,16 @@ def file_opener(name):
 	return time_dict
 if Task == 1:
 	max_time = 50001
-	time_dict = file_opener("task_1/results/times_R125_B100")
+	time_dict = file_opener("task_1/results/task_1_times_R100_B50")
 if Task == 2:
 	max_time = 100001
-	time_dict = file_opener("task_2/task_2a/results/task_2_results_times_b_100_r_60")
+	time_dict = file_opener("task_2/task_2b/results/task2c_results_times_b_50_r_100")
 
 x = [] #robots
 y = [] #boxes
-for r in range(10,61,10):  ## 10 to 126 (per 5)
+for r in range(10,101,10):  ## 10 to 126 (per 5)
 	x.append(r)
-for b in range(10,101,10):  ## 10 to 101 (per 10)
+for b in range(10,51,10):  ## 10 to 101 (per 10)
 	y.append(b)
 Z = np.full([len(y),len(x)],0.)
 # Normalising results
@@ -78,7 +78,6 @@ if norm == False:
 	levs = np.arange(0,max_plus,ten_percent)
 cs = ax.contourf(x, y, Z, 
 				 levs,
-				 
 #				 cmap = "Greys_r"
 #				 norm=colors.LogNorm()
 				)
@@ -86,11 +85,11 @@ cbar = fig.colorbar(cs, ticks = [levs])
 cbar.ax.set_yticklabels(["{:}".format(i) for i in cbar.get_ticks()]) # set ticks of your format
 if norm == True: 
 	cbar.set_label("Normalised time taken (s)")
-	plt.title("Normalised time taken to complete task 1")
+	plt.title("Normalised time taken to complete task "+str(Task))
 
 if norm == False:
 	cbar.set_label("Time taken (s)")
-	plt.title("Time taken to complete task 1")
+	plt.title("Time taken to complete task "+str(Task))
 
 plt.xlabel("Number of agents")
 plt.ylabel("Number of boxes requested")

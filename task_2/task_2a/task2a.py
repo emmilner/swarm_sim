@@ -91,7 +91,7 @@ class swarm():
 	
 	def robot_iterate(self,boxes): # moves the positions forward in time 
 		global warehouse_map # sets the map everywhere
-		random_walk(self) # the robots move using the random walk function 
+		random_walk(self,boxes) # the robots move using the random walk function 
 		these_boxes = boxes
 		#these_boxes.check_for_boxes(self)
 		global counter

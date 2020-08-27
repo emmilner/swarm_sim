@@ -162,9 +162,6 @@ class boxes():
 
 	def box_iterate(self,robots): 
 		self.check_for_boxes(robots)
-		if self.found == False:
-			if self.check_b[self.seq] == True:
-				self.found = True
 		if self.found == True: #if the box has been picked up then update its position with the robot's
 			self.bx[self.seq] = robots.x[self.robot_carrier[self.seq]]
 			self.by[self.seq] = robots.y[self.robot_carrier[self.seq]]
