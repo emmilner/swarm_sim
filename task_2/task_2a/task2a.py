@@ -42,9 +42,13 @@ repulsion_distance = radius/2 # Distance at which repulsion is first felt (3)
 
 #num_boxes = 3
 box_radius = radius
-box_range = 2*box_radius # range at which a box can be picked up 
+box_range = 3*box_radius # range at which a box can be picked up 
 exit_width = int(0.2*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
+R_rob = 20
+R_box = 10
+R_wall = 35
+
 counter = 1
 finished = False
 ani = True
@@ -202,7 +206,7 @@ def avoidance(rob_c,map): # input the agent positions array and the warehouse ma
 		
 	# Fy is Force on the agent in y direction due to proximity to the horziontal walls 
 	# This equation was designed to be very high when the agent is close to the wall and close to 0 otherwise
-	Fy = np.exp(-2*abs(difference_in_x) + 30)
+	Fy = np.exp(-2*abs(difference_in_x) + R_wall)
 	# The Force is zero if the interaction is FALSE meaning that the agent is safely within the warehouse boundary (so that is does not keep going forever if there is a mistake)
 	Fy = Fy*difference_in_x*interaction	
 
@@ -211,7 +215,7 @@ def avoidance(rob_c,map): # input the agent positions array and the warehouse ma
 	y_upper_wall_limit = agentsy[:, np.newaxis] <= map.limv.T[1]
 	interaction = y_lower_wall_limit*y_upper_wall_limit
 	
-	Fx = np.exp(-2*abs(difference_in_y) + 30)
+	Fx = np.exp(-2*abs(difference_in_y) + R_wall)
 	Fx = Fx*difference_in_y*interaction
 
 	# For each agent the force in x and y is the sum of the forces from each wall
@@ -234,7 +238,6 @@ def random_walk(swarm,boxes):
 	F_heading = -np.array([[heading_x[n], heading_y[n]] for n in range(0, swarm.num_agents)])
 	
 	# Agent-agent avoidance
-	R = 20 # repulsion strength
 	r = repulsion_distance # distance at which repulsion is felt (set at start of code)
 	
 	# Compute (euclidean == cdist) distance between agents
@@ -246,10 +249,10 @@ def random_walk(swarm,boxes):
 	proximity_vectors = swarm.rob_c[:,:,np.newaxis]-swarm.rob_c.T[np.newaxis,:,:] 
 	proximity_to_boxes = boxes.box_c[:,:,np.newaxis] - swarm.rob_c.T[np.newaxis,:,:]
 	# Force on agent due to proximity to other agents
-	F_agent = R*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents-1)	
+	F_agent = R_rob*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents-1)	
 	F_agent = np.sum(F_agent, axis =0).T # Sum of proximity forces
 	
-	F_box = R*r*np.exp(-box_dist/r)[:,np.newaxis,:]*proximity_to_boxes/(boxes.num_boxes-1)
+	F_box = R_box*r*np.exp(-box_dist/r)[:,np.newaxis,:]*proximity_to_boxes/(boxes.num_boxes-1)
 	F_box = np.sum(F_box,axis=0)
 	
 	F_boxes = np.zeros([2,swarm.num_agents])
