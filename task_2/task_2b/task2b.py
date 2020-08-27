@@ -50,7 +50,7 @@ R_wall = 35
 
 counter = 1
 finished = False
-ani = True
+ani = False
 if ani == True:
 	num_agents = 6
 	num_boxes = 3
@@ -90,8 +90,6 @@ class swarm():
 		global counter
 		global finished
 		counter = 1 + counter
-		if False not in these_boxes.delivered and finished == False:
-			finished = True
 
 def convert_to_list(self):
 	listed = []
@@ -149,7 +147,8 @@ class boxes():
 				robots.check_r[self.robot_carrier[self.seq]] = False
 				robots.holding_box[self.robot_carrier[self.seq]] = -1
 				self.seq += 1
-				self.found = False
+				if self.seq > num_boxes:
+					finished = True
 		return (self.delivered, self.seq)
 								
 ## Avoidance behaviour for avoiding the warehouse walls ##		

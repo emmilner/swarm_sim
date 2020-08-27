@@ -50,7 +50,7 @@ R_wall = 35
 
 counter = 1
 finished = False
-ani = True 
+ani = False 
 if ani == True:
 	num_agents = 50
 	num_boxes = 30
@@ -92,9 +92,7 @@ class swarm():
 		global counter
 		global finished
 		counter = 1 + counter
-		if False not in these_boxes.delivered and finished == False:
-			finished = True
-
+		
 def convert_to_list(self):
 	listed = []
 	for i in range(len(self)):
@@ -151,6 +149,8 @@ class boxes():
 				robots.check_r[self.robot_carrier[self.seq]] = False
 				robots.holding_box[self.robot_carrier[self.seq]] = -1
 				self.seq += 1
+			if self.seq > num_boxes:
+				finished = True
 		return (self.delivered, self.seq)
 								
 ## Avoidance behaviour for avoiding the warehouse walls ##		
@@ -252,13 +252,11 @@ def random_walk(swarm,boxes):
 			
 ##########################################################
 
-def set_up(time,r,b):
+def set_up(time,num_agents,num_boxes):
 	global counter
 	counter = 1
 	global finished 
 	finished = False
-	num_agents = r
-	num_boxes = b
 	swarm_group = swarm(num_agents)
 	box_group = boxes(num_boxes)
 	swarm_group.gen_agents()
