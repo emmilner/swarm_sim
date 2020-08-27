@@ -125,18 +125,19 @@ class boxes():
 			self.by.append(self.box_c[i,1])
 			
 	def check_for_boxes(self,robots):
-		if self.check_b[self.seq] == False:
-			dist_to_seq = np.sqrt((robots.rob_c[:,0]-self.box_c[self.seq,0])**2 + (robots.rob_c[:,1]-self.box_c[self.seq,1])**2)
-			mini = dist_to_seq.min() # find the minimum distance per robot
-			qu = mini <= box_range # True/False list to question: is this box within range of the robot
-			if qu == True: # if at least one box is within range 
-				for i in range(robots.num_agents):
-					if dist_to_seq[i] == mini and self.check_b[self.seq] == False: # if robot is within range of robot
-						self.check_b[self.seq] = True # the box is now picked up
-						robots.check_r[i] = True # the robot now has a box
-						self.robot_carrier[self.seq] = i # the robot is assigned to that box
-						robots.holding_box[i] = self.seq # the box is assigned to that robot
-						break
+		if self.seq <= self.num_boxes:
+			if self.check_b[self.seq] == False:
+				dist_to_seq = np.sqrt((robots.rob_c[:,0]-self.box_c[self.seq,0])**2 + (robots.rob_c[:,1]-self.box_c[self.seq,1])**2)
+				mini = dist_to_seq.min() # find the minimum distance per robot
+				qu = mini <= box_range # True/False list to question: is this box within range of the robot
+				if qu == True: # if at least one box is within range 
+					for i in range(robots.num_agents):
+						if dist_to_seq[i] == mini and self.check_b[self.seq] == False: # if robot is within range of robot
+							self.check_b[self.seq] = True # the box is now picked up
+							robots.check_r[i] = True # the robot now has a box
+							self.robot_carrier[self.seq] = i # the robot is assigned to that box
+							robots.holding_box[i] = self.seq # the box is assigned to that robot
+							break
 
 	def box_iterate(self,robots): 
 		if self.check_b[self.seq] == True:
@@ -248,13 +249,15 @@ def random_walk(swarm,boxes):
 	swarm.rob_c += M	
 ##########################################################
 
-def set_up(time,r,b):
+def set_up(time,agents,box_num):
 	global counter
 	counter = 1
 	global finished 
 	finished = False
-	num_agents = r
-	num_boxes = b
+	global num_boxes
+	num_boxes = box_num
+	global num_agents
+	num_agents = agents
 	swarm_group = swarm(num_agents)
 	box_group = boxes(num_boxes)
 	swarm_group.gen_agents()
