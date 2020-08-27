@@ -41,12 +41,12 @@ repulsion_distance = radius/2 # Distance at which repulsion is first felt (3)
 
 #num_boxes = 3
 box_radius = radius
-box_range = 3*box_radius # range at which a box can be picked up 
+box_range = 4*box_radius # range at which a box can be picked up 
 exit_width = int(0.5*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
 counter = 1
 finished = False
-ani = False
+ani = True 
 if ani == True:
 	num_agents = 50
 	num_boxes = 30
@@ -162,9 +162,6 @@ class boxes():
 
 	def box_iterate(self,robots): 
 		self.check_for_boxes(robots)
-		if self.found == False:
-			if self.check_b[self.seq] == True:
-				self.found = True
 		if self.found == True: #if the box has been picked up then update its position with the robot's
 			self.bx[self.seq] = robots.x[self.robot_carrier[self.seq]]
 			self.by[self.seq] = robots.y[self.robot_carrier[self.seq]]

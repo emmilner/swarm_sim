@@ -41,12 +41,12 @@ repulsion_distance = radius/2 # Distance at which repulsion is first felt (3)
 
 #num_boxes = 3
 box_radius = radius
-box_range = 3*box_radius # range at which a box can be picked up 
+box_range = 4*box_radius # range at which a box can be picked up 
 exit_width = int(0.5*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
 counter = 1
 finished = False
-ani = False
+ani = True 
 if ani == True:
 	num_agents = 50
 	num_boxes = 30

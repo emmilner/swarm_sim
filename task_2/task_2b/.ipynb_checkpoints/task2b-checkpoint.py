@@ -162,9 +162,6 @@ class boxes():
 
 	def box_iterate(self,robots): 
 		self.check_for_boxes(robots)
-		if self.found == False:
-			if self.check_b[self.seq] == True:
-				self.found = True
 		if self.found == True:
 			self.bx[self.seq] = robots.x[self.robot_carrier[self.seq]]
 			self.by[self.seq] = robots.y[self.robot_carrier[self.seq]]
@@ -328,6 +325,8 @@ if ani == True:
 				  'ko',
 				  markersize = marker_size, fillstyle = 'none')
 	box, = ax.plot([boxes.bx[i] for i in range(boxes.num_boxes)],[boxes.by[i] for i in range(num_boxes)], 'rs', markersize = marker_size)
+	seq, = ax.plot([boxes.bx[0]],[boxes.by[0]],'ks',markersize = marker_size)
+
 	#cir, = ax.plot([radius,radius*3,radius*5,radius*7,10,10,10,10],[10,10,10,10,radius,radius*3,radius*5,radius*7],'ko',markersize = marker_size)
 	
 	plt.axis('square')
@@ -338,6 +337,8 @@ if ani == True:
 		
 		dot.set_data([swarm.x[n] for n in range(num_agents)],[swarm.y[n] for n in range(num_agents)])
 		box.set_data([boxes.bx[n] for n in range(boxes.num_boxes)],[boxes.by[n] for n in range(boxes.num_boxes)])
+		seq.set_data([boxes.bx[boxes.seq],[boxes.by[boxes.seq]]])
+
 		plt.title("Time is "+str(counter)+"s")
 		if finished == True:
 			exit()
