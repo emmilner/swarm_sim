@@ -49,7 +49,7 @@ counter = 1
 finished = False
 ani = True
 if ani == True:
-	num_agents = 100
+	num_agents = 50
 	num_boxes = 50
 	marker_size = width*0.5/20 #diameter
 	
@@ -241,6 +241,7 @@ def random_walk(swarm,boxes):
 	agent_distance = cdist(swarm.rob_c, swarm.rob_c)
 	box_dist = cdist(boxes.box_c,swarm.rob_c)
 
+	
 	# Compute vectors between agents
 	proximity_vectors = swarm.rob_c[:,:,np.newaxis]-swarm.rob_c.T[np.newaxis,:,:] 
 	proximity_to_boxes = boxes.box_c[:,:,np.newaxis] - swarm.rob_c.T[np.newaxis,:,:]
@@ -328,6 +329,8 @@ if ani == True:
 				  'ko',
 				  markersize = marker_size, fillstyle = 'none')
 	box, = ax.plot([boxes.bx[i] for i in range(boxes.num_boxes)],[boxes.by[i] for i in range(num_boxes)], 'rs', markersize = marker_size)
+	seq, = ax.plot([boxes.bx[0]],[boxes.by[0]],'ks',markersize = marker_size)
+
 	#cir, = ax.plot([radius,radius*3,radius*5,radius*7,10,10,10,10],[10,10,10,10,radius,radius*3,radius*5,radius*7],'ko',markersize = marker_size)
 	
 	plt.axis('square')
@@ -339,6 +342,8 @@ if ani == True:
 		
 		dot.set_data([swarm.x[n] for n in range(num_agents)],[swarm.y[n] for n in range(num_agents)])
 		box.set_data([boxes.bx[n] for n in range(boxes.num_boxes)],[boxes.by[n] for n in range(boxes.num_boxes)])
+		seq.set_data([boxes.bx[boxes.seq],[boxes.by[boxes.seq]]])
+
 		plt.title("Time is "+str(counter)+"s")
 		if finished == True:
 			exit()
