@@ -85,7 +85,8 @@ if norm == False:
 	levs = np.arange(0,max_out+1,max_out/10)
 cs = ax.contourf(x, y, Z, 
 				 levs,
-				 cmap = "Greys_r"
+				 #cmap = "Greys_r"
+				 cmap = "rainbow"
 #				 norm=colors.LogNorm()
 				)
 cbar = fig.colorbar(cs, ticks = [levs])

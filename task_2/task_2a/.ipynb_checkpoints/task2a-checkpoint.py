@@ -92,6 +92,8 @@ class swarm():
 		global counter
 		global finished
 		counter = 1 + counter
+		print(boxes.seq)
+		print(boxes.check_b)
 		if False not in these_boxes.delivered and finished == False:
 			finished = True
 
