@@ -1,16 +1,18 @@
 import task2a
 
-trials = 10 
+trials = 5
+limit = 50000
 dictionary = {}
 dictionary["robot"] = {}
 (dictionary["robot"])["box"] = "times"
 (dictionary["trials no"]) = trials
-for r in range(10,101,5):
+(dictionary["time limit"]) = limit
+for r in range(10,51,5):
 	dictionary[r] = {}
 	for b in range(10,51,5):
 		total = 0 
 		for trial in range(trials):
-			total += task2a.set_up(100000,r,b)
+			total += task2a.set_up(limit,r,b)
 		time_avg = total/trials
 		(dictionary[r])[b] = time_avg
 
