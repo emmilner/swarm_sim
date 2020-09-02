@@ -12,13 +12,13 @@ def file_opener(name):
 	file_in.close()
 	return time_dict
 
-time_dict = file_opener("results/times_R125_B100")
+time_dict = file_opener("task_1/results/total_time_results")
 
 x = [] #robots
 y = [] #boxes
-for r in range(10,46,5):  ## 10 to 126 (per 5)
+for r in range(10,101,20):  ## 10 to 126 (per 5)
 	x.append(r)
-for b in range(10,101,10):  ## 10 to 101 (per 10)
+for b in range(10,101,5):  ## 10 to 101 (per 10)
 	y.append(b)
 
 lines_robot_range = []

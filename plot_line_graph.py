@@ -10,7 +10,7 @@ def file_opener(name):
 	file_in.close()
 	return time_dict
 
-time_dict = file_opener("total_time_results")
+time_dict = file_opener("task_1/results/total_time_results")
 fig, ax = plt.subplots()
 
 x = [] #robots

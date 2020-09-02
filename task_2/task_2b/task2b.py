@@ -41,18 +41,18 @@ repulsion_distance = radius/2 # Distance at which repulsion is first felt (3)
 
 #num_boxes = 3
 box_radius = radius
-box_range = 3*box_radius # range at which a box can be picked up 
+box_range = 4*box_radius # range at which a box can be picked up 
 exit_width = int(0.2*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
 R_rob = 20
-R_box = 10
+R_box = 5
 R_wall = 35
 
 counter = 1
 finished = False
-ani = False
+ani = True
 if ani == True:
-	num_agents = 6
+	num_agents = 30
 	num_boxes = 3
 	marker_size = width*0.5/20 #diameter
 	
@@ -83,14 +83,14 @@ class swarm():
 		return self.rob_c
 	
 	def robot_iterate(self,boxes): # moves the positions forward in time 
-		boxes.check_for_boxes(self)
 		global warehouse_map # sets the map everywhere
 		random_walk(self,boxes) # the robots move using the random walk function 
 		these_boxes = boxes
 		global counter
 		global finished
 		counter = 1 + counter
-
+		if False not in these_boxes.delivered and finished == False:
+			finished = True
 def convert_to_list(self):
 	listed = []
 	for i in range(len(self)):
@@ -125,21 +125,22 @@ class boxes():
 			self.by.append(self.box_c[i,1])
 			
 	def check_for_boxes(self,robots):
-		if self.seq <= self.num_boxes:
-			if self.check_b[self.seq] == False:
-				dist_to_seq = np.sqrt((robots.rob_c[:,0]-self.box_c[self.seq,0])**2 + (robots.rob_c[:,1]-self.box_c[self.seq,1])**2)
-				mini = dist_to_seq.min() # find the minimum distance per robot
-				qu = mini <= box_range # True/False list to question: is this box within range of the robot
-				if qu == True: # if at least one box is within range 
-					for i in range(robots.num_agents):
-						if dist_to_seq[i] == mini and self.check_b[self.seq] == False: # if robot is within range of robot
-							self.check_b[self.seq] = True # the box is now picked up
-							robots.check_r[i] = True # the robot now has a box
-							self.robot_carrier[self.seq] = i # the robot is assigned to that box
-							robots.holding_box[i] = self.seq # the box is assigned to that robot
-							break
+		if self.seq <= self.num_boxes and self.check_b[self.seq] == False:
+			#dist_to_seq = np.sqrt((robots.rob_c[:,0]-self.box_c[self.seq,0])**2 + (robots.rob_c[:,1]-self.box_c[self.seq,1])**2)
+			dist_to_seq = cdist([self.box_c[self.seq]],robots.rob_c)				
+			mini = dist_to_seq.min() # find the minimum distance per robo
+			qu = mini <= box_range # True/False list to question: is this box within range of the robot
+			if qu == True: # if at least one box is within range 
+				for i in range(robots.num_agents):
+					if dist_to_seq[0,i] == mini: #and self.check_b[self.seq] == False: # if robot is within range of robot
+						self.check_b[self.seq] = True # the box is now picked up
+						robots.check_r[i] = True # the robot now has a box
+						self.robot_carrier[self.seq] = i # the robot is assigned to that box
+						robots.holding_box[i] = self.seq # the box is assigned to that robot
+						break
 
 	def box_iterate(self,robots): 
+		self.check_for_boxes(robots)
 		if self.check_b[self.seq] == True:
 			self.bx[self.seq] = robots.rob_c[self.robot_carrier[self.seq],0]
 			self.by[self.seq] = robots.rob_c[self.robot_carrier[self.seq],1]
@@ -249,15 +250,13 @@ def random_walk(swarm,boxes):
 	swarm.rob_c += M	
 ##########################################################
 
-def set_up(time,agents,box_num):
+def set_up(time,r,b):
 	global counter
 	counter = 1
 	global finished 
 	finished = False
-	global num_boxes
-	num_boxes = box_num
-	global num_agents
-	num_agents = agents
+	num_agents = r
+	num_boxes = b
 	swarm_group = swarm(num_agents)
 	box_group = boxes(num_boxes)
 	swarm_group.gen_agents()

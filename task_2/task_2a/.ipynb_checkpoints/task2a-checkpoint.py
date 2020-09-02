@@ -53,8 +53,8 @@ counter = 1
 finished = False
 ani = True
 if ani == True:
-	num_agents = 50
-	num_boxes = 50
+	num_agents = 5
+	num_boxes = 5
 	marker_size = width*0.5/20 #diameter
 	
 class swarm():

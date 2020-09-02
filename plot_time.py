@@ -16,7 +16,6 @@ norm = int(sys.argv[2])
 
 #############################################
 
-
 if norm == 0:
 	norm = False
 	print("Data is NOT normalised because your second input is 0. Put 1 for normalised data.")
@@ -32,27 +31,34 @@ def file_opener(name):
 	return time_dict
 if Task == 1:
 	max_time = 50001
-	time_dict = file_opener("task_1/results/task_1_times_R100_B50")
+	time_dict = file_opener("task_1/results/total_time_results")
 if Task == 2:
 	max_time = 100001
 	time_dict = file_opener("task_2/task_2b/results/task2c_results_times_b_50_r_100")
 
 x = [] #robots
 y = [] #boxes
-for r in range(10,101,10):  ## 10 to 126 (per 5)
+for r in range(10,101,5):  ## 10 to 126 (per 5)
 	x.append(r)
-for b in range(10,51,10):  ## 10 to 101 (per 10)
+for b in range(10,101,5):  ## 10 to 101 (per 10)
 	y.append(b)
 Z = np.full([len(y),len(x)],0.)
 # Normalising results
 maximum = np.full([len(y),1],0.)
 minimum = np.full([len(y),1],0.)
+maximum_onenum = 0 
+minimum_onenum = 100000 
 
 for b in range(len(y)):
 	list_max_min = []
 	box = y[b]
 	for robot in x:
 		list_max_min.append(time_dict[robot][box])
+	
+		if time_dict[robot][box] >= maximum_onenum:
+			maximum_onenum = time_dict[robot][box]
+		if time_dict[robot][box] <= minimum_onenum:
+			minimum_onenum = time_dict[robot][box]
 	maximum[b] = max(list_max_min)
 	minimum[b] = min(list_max_min)
 	
@@ -64,6 +70,8 @@ for i_n in range(len(x)):
 			time_dict[n][b] = max_time-1
 		if norm == True:
 			Z[i_b,i_n] = (time_dict[n][b] - minimum[i_b])/(maximum[i_b] - minimum[i_b])
+#		Z[i_b,i_n] = (time_dict[n][b] - minimum_onenum)/(maximum_onenum - minimum_onenum)
+
 		if norm == False:
 			Z[i_b,i_n] = time_dict[n][b] 
 
@@ -73,9 +81,8 @@ if norm == True:
 	levs = np.arange(0,11,1)
 	levs = levs/10
 if norm == False:
-	ten_percent = max_time/10
-	max_plus = max_time+ten_percent
-	levs = np.arange(0,max_plus,ten_percent)
+	max_out = 50000
+	levs = np.arange(0,max_out+1,max_out/10)
 cs = ax.contourf(x, y, Z, 
 				 levs,
 #				 cmap = "Greys_r"

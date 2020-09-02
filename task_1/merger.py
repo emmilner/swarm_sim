@@ -9,36 +9,37 @@ def file_opener(name):
 	return time_dict
 
 
-name1 = "times_R1050_B50100"
-name2 = "times_R50100_B1050"
+name1 = "task_1_times_R100_B50"
+name2 = "task_1_times_R100_B100"
 name3 = "times_R100125_B1050"
 name4 = "times_R100125_B50100"
 name5 = "times_R50100_B50100"
 name6 = "times_R25_B100"
-name_first = "times_R1050_B1050"
+#name_first = "times_R1050_B1050"
 times = {}
-times = file_opener(name_first)
+times = file_opener(name1)
+print(times)
 
-for r in range(10,51,5):
-	for b in range(60,101,10): 
-		times[r][b] = file_opener(name1)[r][b]
-for r in range(55,101,5):####
-	times[r] = {} 
-	for b in range(10,51,10):
+#for r in range(10,101,5):
+#	for b in range(10,51,5): 
+#		times[r][b] = file_opener(name1)[r][b]
+for r in range(10,101,5):####
+	#times[r] = {} 
+	for b in range(55,101,5):
 		times[r][b] = file_opener(name2)[r][b]		
-for r in range(100,126,5):
-	times[r] = {} 
-	for b in range(10,51,10):
-		times[r][b] = file_opener(name3)[r][b]		
-for r in range(100,126,5):
-	for b in range(50,101,10):
-		times[r][b] = file_opener(name4)[r][b]
-for r in range(50,101,5):
-	for b in range(50,101,10):
-		times[r][b] = file_opener(name5)[r][b]
-for r in range(10,26,5):
-	for b in range(40,101,10):
-		times[r][b] = file_opener(name6)[r][b]
+#for r in range(100,126,5):
+#	times[r] = {} 
+#	for b in range(10,51,10):
+#		times[r][b] = file_opener(name3)[r][b]		
+#for r in range(100,126,5):
+#	for b in range(50,101,10):
+#		times[r][b] = file_opener(name4)[r][b]
+#for r in range(50,101,5):
+#	for b in range(50,101,10):
+#		times[r][b] = file_opener(name5)[r][b]
+#for r in range(10,26,5):
+#	for b in range(40,101,10):
+#		times[r][b] = file_opener(name6)[r][b]
 
 f = open("total_time_results.txt","w+")
 f.write(str(times))
