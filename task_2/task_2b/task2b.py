@@ -50,7 +50,7 @@ R_wall = 35
 
 counter = 1
 finished = False
-ani = True
+ani = False
 if ani == True:
 	num_agents = 30
 	num_boxes = 3
@@ -125,19 +125,19 @@ class boxes():
 			self.by.append(self.box_c[i,1])
 			
 	def check_for_boxes(self,robots):
-		if self.seq <= self.num_boxes and self.check_b[self.seq] == False:
-			#dist_to_seq = np.sqrt((robots.rob_c[:,0]-self.box_c[self.seq,0])**2 + (robots.rob_c[:,1]-self.box_c[self.seq,1])**2)
-			dist_to_seq = cdist([self.box_c[self.seq]],robots.rob_c)				
-			mini = dist_to_seq.min() # find the minimum distance per robo
-			qu = mini <= box_range # True/False list to question: is this box within range of the robot
-			if qu == True: # if at least one box is within range 
-				for i in range(robots.num_agents):
-					if dist_to_seq[0,i] == mini: #and self.check_b[self.seq] == False: # if robot is within range of robot
-						self.check_b[self.seq] = True # the box is now picked up
-						robots.check_r[i] = True # the robot now has a box
-						self.robot_carrier[self.seq] = i # the robot is assigned to that box
-						robots.holding_box[i] = self.seq # the box is assigned to that robot
-						break
+		if self.seq <= self.num_boxes: 
+			if self.check_b[self.seq] == False:
+				dist_to_seq = cdist([self.box_c[self.seq]],robots.rob_c)				
+				mini = dist_to_seq.min() # find the minimum distance per robo
+				qu = mini <= box_range # True/False list to question: is this box within range of the robot
+				if qu == True: # if at least one box is within range 
+					for i in range(robots.num_agents):
+						if dist_to_seq[0,i] == mini: #and self.check_b[self.seq] == False: # if robot is within range of robot
+							self.check_b[self.seq] = True # the box is now picked up
+							robots.check_r[i] = True # the robot now has a box
+							self.robot_carrier[self.seq] = i # the robot is assigned to that box
+							robots.holding_box[i] = self.seq # the box is assigned to that robot
+							break
 
 	def box_iterate(self,robots): 
 		self.check_for_boxes(robots)
@@ -149,7 +149,7 @@ class boxes():
 				robots.check_r[self.robot_carrier[self.seq]] = False
 				robots.holding_box[self.robot_carrier[self.seq]] = -1
 				self.seq += 1
-				if self.seq > num_boxes:
+				if self.seq > self.num_boxes:
 					finished = True
 		return (self.delivered, self.seq)
 								
@@ -255,10 +255,8 @@ def set_up(time,r,b):
 	counter = 1
 	global finished 
 	finished = False
-	num_agents = r
-	num_boxes = b
-	swarm_group = swarm(num_agents)
-	box_group = boxes(num_boxes)
+	swarm_group = swarm(r)
+	box_group = boxes(b)
 	swarm_group.gen_agents()
 	box_group.check_for_boxes_set_up(swarm_group)
 	
@@ -299,7 +297,7 @@ if ani == True:
 	dot, = ax.plot([swarm.rob_c[i,0] for i in range(swarm.num_agents)],[swarm.rob_c[i,1] for i in range(num_agents)],
 				  'ko',
 				  markersize = marker_size, fillstyle = 'none')
-	box, = ax.plot([boxes.bx[i] for i in range(boxes.num_boxes)],[boxes.by[i] for i in range(num_boxes)], 'rs', markersize = marker_size)
+	box, = ax.plot([boxes.bx[i] for i in range(boxes.num_boxes)],[boxes.by[i] for i in range(boxes.num_boxes)], 'rs', markersize = marker_size)
 	seq, = ax.plot([boxes.bx[0]],[boxes.by[0]],'ks',markersize = marker_size)
 
 	#cir, = ax.plot([radius,radius*3,radius*5,radius*7,10,10,10,10],[10,10,10,10,radius,radius*3,radius*5,radius*7],'ko',markersize = marker_size)

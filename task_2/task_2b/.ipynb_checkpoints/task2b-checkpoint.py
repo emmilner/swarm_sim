@@ -45,7 +45,7 @@ box_range = 4*box_radius # range at which a box can be picked up
 exit_width = int(0.2*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
 R_rob = 20
-R_box = 5
+R_box = 10
 R_wall = 35
 
 counter = 1
@@ -53,7 +53,7 @@ finished = False
 ani = True
 if ani == True:
 	num_agents = 30
-	num_boxes = 3
+	num_boxes = 40
 	marker_size = width*0.5/20 #diameter
 	
 class swarm():
@@ -149,7 +149,7 @@ class boxes():
 				robots.check_r[self.robot_carrier[self.seq]] = False
 				robots.holding_box[self.robot_carrier[self.seq]] = -1
 				self.seq += 1
-				if self.seq > num_boxes:
+				if self.seq > self.num_boxes:
 					finished = True
 		return (self.delivered, self.seq)
 								
@@ -255,10 +255,8 @@ def set_up(time,r,b):
 	counter = 1
 	global finished 
 	finished = False
-	num_agents = r
-	num_boxes = b
-	swarm_group = swarm(num_agents)
-	box_group = boxes(num_boxes)
+	swarm_group = swarm(r)
+	box_group = boxes(b)
 	swarm_group.gen_agents()
 	box_group.check_for_boxes_set_up(swarm_group)
 	
@@ -299,7 +297,7 @@ if ani == True:
 	dot, = ax.plot([swarm.rob_c[i,0] for i in range(swarm.num_agents)],[swarm.rob_c[i,1] for i in range(num_agents)],
 				  'ko',
 				  markersize = marker_size, fillstyle = 'none')
-	box, = ax.plot([boxes.bx[i] for i in range(boxes.num_boxes)],[boxes.by[i] for i in range(num_boxes)], 'rs', markersize = marker_size)
+	box, = ax.plot([boxes.bx[i] for i in range(boxes.num_boxes)],[boxes.by[i] for i in range(boxes.num_boxes)], 'rs', markersize = marker_size)
 	seq, = ax.plot([boxes.bx[0]],[boxes.by[0]],'ks',markersize = marker_size)
 
 	#cir, = ax.plot([radius,radius*3,radius*5,radius*7,10,10,10,10],[10,10,10,10,radius,radius*3,radius*5,radius*7],'ko',markersize = marker_size)
