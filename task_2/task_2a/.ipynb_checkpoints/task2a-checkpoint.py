@@ -42,9 +42,10 @@ repulsion_distance = radius/2 # Distance at which repulsion is first felt (3)
 
 #num_boxes = 3
 box_radius = radius
-box_range = 3*box_radius # range at which a box can be picked up 
+box_range = 2*box_radius # range at which a box can be picked up 
 exit_width = int(0.2*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
+
 R_rob = 20
 R_box = 10
 R_wall = 35
@@ -53,13 +54,20 @@ counter = 1
 finished = False
 ani = True
 if ani == True:
-	num_agents = 5
-	num_boxes = 5
+	num_agents = 30
+	num_boxes = 30
 	marker_size = width*0.5/20 #diameter
 	
 class swarm():
 	def __init__(self,num_agents):
 		self.rob_c = []
+		#self.gen_agents() # coordinate of agent centre point
+		self.x = [] 
+		#np.zeros(self.num_agents) # Agent x coordinates
+		self.y = [] 
+		#np.zeros(self.num_agents) # Agent y coordinates
+		#self.vel_x = np.zeros(self.num_agents) # Agent x velocity
+		#self.vel_y = np.zeros(self.num_agents) # Agent y velocity
 		self.speed = speed # Agent speed 
 		self.heading = []
 		#0.0314*np.random.randint(-100,100,self.num_agents) # create a new heading direction for each agent (this is pi * angle in degrees between -100 and + 100 = angle in radians)
@@ -81,6 +89,8 @@ class swarm():
 			a = (width-(2*radius))*np.random.random_sample() + radius # x coordinate 
 			b = (height-(2*radius))*np.random.random_sample() + radius # y coordinate
 			self.rob_c[i] = np.array([a,b]) # agent position is (x,y)
+		self.x = self.rob_c[0,:] # set to the array of x coordinates
+		self.y = self.rob_c[1,:] # set to the array of y coordinates
 		
 		return self.rob_c
 	
@@ -92,8 +102,6 @@ class swarm():
 		global counter
 		global finished
 		counter = 1 + counter
-		print(boxes.seq)
-		print(boxes.check_b)
 		if False not in these_boxes.delivered and finished == False:
 			finished = True
 
@@ -163,13 +171,15 @@ class boxes():
 		for i in range(self.seq, self.num_boxes):
 # if box is moving on a robot and has not yet been delivered 
 			if self.check_b[i] == True and self.delivered[i] == False: 
-				self.bx[i] = robots.rob_c[self.robot_carrier[i],0]
-				self.by[i] = robots.rob_c[self.robot_carrier[i],1]
+				self.bx[i] = robots.x[self.robot_carrier[i]]
+				self.by[i] = robots.y[self.robot_carrier[i]]
 				if self.bx[i] > width-exit_width and i == self.seq:
 					self.delivered[i] = True
 					robots.check_r[self.robot_carrier[i]] = False
 					robots.holding_box[self.robot_carrier[i]] = -1
 					self.seq += 1
+					if self.seq == self.num_boxes:
+						finished = True
 		return (self.delivered, self.seq)
 								
 ## Avoidance behaviour for avoiding the warehouse walls ##		
@@ -269,7 +279,10 @@ def random_walk(swarm,boxes):
 	M = -np.array([[move_x[n], move_y[n]] for n in range(0, swarm.num_agents)])
 	
 	# New agent positions 
-	swarm.rob_c += M			
+	swarm.rob_c += M
+	swarm.x = swarm.rob_c[:,0]
+	swarm.y = swarm.rob_c[:,1]
+			
 ##########################################################
 
 def set_up(time,r,b):
@@ -318,12 +331,11 @@ if ani == True:
 	
 	fig = plt.figure()
 	ax = plt.axes(xlim=(0, width), ylim=(0, height))
-	dot, = ax.plot([swarm.rob_c[i,0] for i in range(swarm.num_agents)],[swarm.rob_c[i,1] for i in range(num_agents)],
+	dot, = ax.plot([swarm.x[i] for i in range(swarm.num_agents)],[swarm.y[i] for i in range(num_agents)],
 				  'ko',
 				  markersize = marker_size, fillstyle = 'none')
 	box, = ax.plot([boxes.bx[i] for i in range(boxes.num_boxes)],[boxes.by[i] for i in range(num_boxes)], 'rs', markersize = marker_size)
-	seq, = ax.plot([boxes.bx[0]],[boxes.by[0]],'ks',markersize = marker_size)
-
+	seq, = ax.plot([boxes.bx[boxes.seq]],[boxes.by[boxes.seq]], 'ks', markersize = marker_size)
 	#cir, = ax.plot([radius,radius*3,radius*5,radius*7,10,10,10,10],[10,10,10,10,radius,radius*3,radius*5,radius*7],'ko',markersize = marker_size)
 	
 	plt.axis('square')
@@ -333,10 +345,9 @@ if ani == True:
 		swarm.robot_iterate(boxes)
 		boxes.box_iterate(swarm)
 		
-		dot.set_data([swarm.rob_c[n,0] for n in range(num_agents)],[swarm.rob_c[n,1] for n in range(num_agents)])
+		dot.set_data([swarm.x[n] for n in range(num_agents)],[swarm.y[n] for n in range(num_agents)])
 		box.set_data([boxes.bx[n] for n in range(boxes.num_boxes)],[boxes.by[n] for n in range(boxes.num_boxes)])
 		seq.set_data([boxes.bx[boxes.seq],[boxes.by[boxes.seq]]])
-
 		plt.title("Time is "+str(counter)+"s")
 		if finished == True:
 			exit()

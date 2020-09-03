@@ -308,15 +308,15 @@ def set_up(time,r,b):
 		swarm_group.iterate(box_group)
 		box_group.iterate(swarm_group)
 		if finished == True:
-			return 1.0
+			return (1, counter)
 			exit()
 	sr = 0 
 	for i in range(num_boxes):
 		if box_group.delivered[i] == True:
 			sr+=1
 	if sr > 0:
-		sr = sr/num_boxes
-	return sr
+		sr = int(sr/num_boxes)
+	return (sr, counter)
 
 if ani == True: 
 	swarm = swarm(num_agents)

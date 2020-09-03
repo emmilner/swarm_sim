@@ -1,15 +1,15 @@
 import task2a
 
 trials = 5
-limit = 50000
+limit = 10000
 dictionary = {}
 dictionary["robot"] = {}
 (dictionary["robot"])["box"] = "times"
 (dictionary["trials no"]) = trials
 (dictionary["time limit"]) = limit
-for r in range(20,31,10):
+for r in range(20,51,10):
 	dictionary[r] = {}
-	for b in range(20,31,10):
+	for b in range(20,41,10):
 		total = 0 
 		print("R = ")
 		print(r)

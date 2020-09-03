@@ -34,13 +34,13 @@ if Task == 1:
 	time_dict = file_opener("task_1/results/total_time_results")
 if Task == 2:
 	max_time = 100001
-	time_dict = file_opener("task_2/task_2b/results/task2c_results_times_b_50_r_100")
+	time_dict = file_opener("task_2/task_2b/results/task2b_results_times_b_50_r_100")
 
 x = [] #robots
 y = [] #boxes
-for r in range(10,101,5):  ## 10 to 126 (per 5)
+for r in range(10,101,10):  ## 10 to 126 (per 5)
 	x.append(r)
-for b in range(10,101,5):  ## 10 to 101 (per 10)
+for b in range(10,51,10):  ## 10 to 101 (per 10)
 	y.append(b)
 Z = np.full([len(y),len(x)],0.)
 # Normalising results

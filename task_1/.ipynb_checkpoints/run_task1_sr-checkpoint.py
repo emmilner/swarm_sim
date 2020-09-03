@@ -13,18 +13,18 @@ dictionary_time["robot"] = {}
 (dictionary_time["trials no"]) = trials
 (dictionary_time["time limit"]) = limit
 
-for r in range(10,51,2):
+for r in range(10,51):
 	dictionary_sr[r] = {}
 	dictionary_time[r] = {}
-	for b in range(10,51,2):
+	for b in range(10,51):
 		time = 0 
-		sr = 0.
+		sr = 0 
 		for trial in range(trials):
-			result = task1_sr.set_up(limit,r,b)
-			sr += result[0]
-			time += result[1]
-		sr_avg = 0. 
-		if sr > 0.:	
+			(sr_current, time_current) = task1_sr.set_up(limit,r,b)
+			sr += sr_current
+			time += time_current
+		sr_avg = 0 
+		if sr > 0:	
 			sr_avg = sr/trials
 		(dictionary_sr[r])[b] = sr_avg
 		(dictionary_time[r])[b] = time/trials

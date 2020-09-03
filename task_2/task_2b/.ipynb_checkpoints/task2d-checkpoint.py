@@ -125,7 +125,7 @@ class boxes():
 			self.by.append(self.box_c[i,1])
 			
 	def check_for_boxes(self,robots):
-		if self.seq <= self.num_boxes: 
+		if self.seq < self.num_boxes: 
 			if self.check_b[self.seq] == False:
 				dist_to_seq = cdist([self.box_c[self.seq]],robots.rob_c)				
 				mini = dist_to_seq.min() # find the minimum distance per robo
@@ -141,6 +141,8 @@ class boxes():
 
 	def box_iterate(self,robots): 
 		self.check_for_boxes(robots)
+		# 
+		
 		if self.check_b[self.seq] == True:
 			self.bx[self.seq] = robots.rob_c[self.robot_carrier[self.seq],0]
 			self.by[self.seq] = robots.rob_c[self.robot_carrier[self.seq],1]

@@ -1,6 +1,6 @@
 '''
 Swarm Warehouse with Boxes Code:
-Displays a bird's eye view of a warehouse with robots moving around, avoiding the walls and each other. Boxes are picked up and moved to exit zone by robots. The boxes are requested to be delivered in a given sequence and that sequence is broadcast to the swarm. The robots will only pick up a box if it is the correct on in the sequence. They will then only pick up a new box when the sequence has moved on and the previous box has been delivered to the exit zone.
+Displays a bird's eye view of a warehouse with robots moving around, avoiding the walls and each other. Boxes are picked up and moved to exit zone by robots.
 
 ** Requires the script warehouse.py to be in the same folder as this script as it is called in the code **
 
@@ -14,7 +14,12 @@ width of warehouse is 5m
 height (depth) of warehouse is 5m 
 '''
 # Still to do
+	# Put counts on graphic
+	# Get meaningful results saved without graphic needing to run 
+	# Exit zones 
 	# Consider other exit zone options e.g. square in the centre (so that wall avoidance doesn't come in)
+	# Collect data to be plotted (without running Graphic)
+	# HPC run 1-100 robots etc.
 	# if delivered change the number of boxes.num_boxes so don't have to keep plotting them?
 	# avoid boxes if you already have a box 
 
@@ -27,6 +32,7 @@ import scipy
 from scipy.spatial.distance import cdist, pdist, euclidean
 import pickle
 import warehouse
+#import swarm_animation
 import sys
 import os
 
@@ -41,24 +47,27 @@ repulsion_distance = radius/2 # Distance at which repulsion is first felt (3)
 
 #num_boxes = 3
 box_radius = radius
-box_range = 4*box_radius # range at which a box can be picked up 
+box_range = 2*box_radius # range at which a box can be picked up 
 exit_width = int(0.2*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
-R_rob = 20
-R_box = 5
-R_wall = 35
-
 counter = 1
 finished = False
-ani = True
+ani = False
 if ani == True:
-	num_agents = 30
-	num_boxes = 30
+	num_agents = 10
+	num_boxes = 50
 	marker_size = width*0.5/20 #diameter
-	
+
 class swarm():
 	def __init__(self,num_agents):
 		self.rob_c = []
+		#self.gen_agents() # coordinate of agent centre point
+		self.x = [] 
+		#np.zeros(self.num_agents) # Agent x coordinates
+		self.y = [] 
+		#np.zeros(self.num_agents) # Agent y coordinates
+		#self.vel_x = np.zeros(self.num_agents) # Agent x velocity
+		#self.vel_y = np.zeros(self.num_agents) # Agent y velocity
 		self.speed = speed # Agent speed 
 		self.heading = []
 		#0.0314*np.random.randint(-100,100,self.num_agents) # create a new heading direction for each agent (this is pi * angle in degrees between -100 and + 100 = angle in radians)
@@ -78,19 +87,24 @@ class swarm():
 		for i in range(self.num_agents): # for every agent generate a random staring position
 			# coordinates are anywhere within the warehouse but at least a robot radius from the wall so it does not start in the wall
 			a = (width-(2*radius))*np.random.random_sample() + radius # x coordinate 
-			b = (height-(2*radius))*np.random.random_sample() + radius # y coordinate 
+			b = (height-(2*radius))*np.random.random_sample() + radius # y coordinate
 			self.rob_c[i] = np.array([a,b]) # agent position is (x,y)
+		self.x = self.rob_c[0,:] # set to the array of x coordinates
+		self.y = self.rob_c[1,:] # set to the array of y coordinates
+		
 		return self.rob_c
 	
-	def robot_iterate(self,boxes): # moves the positions forward in time 
+	def iterate(self,boxes): # moves the positions forward in time 
 		global warehouse_map # sets the map everywhere
 		random_walk(self,boxes) # the robots move using the random walk function 
 		these_boxes = boxes
+		#these_boxes.check_for_boxes(self)
 		global counter
 		global finished
 		counter = 1 + counter
 		if False not in these_boxes.delivered and finished == False:
 			finished = True
+
 def convert_to_list(self):
 	listed = []
 	for i in range(len(self)):
@@ -104,8 +118,6 @@ class boxes():
 		self.box_c = self.generate_boxes()
 		self.check_b = [False for i in range(self.num_boxes)] # True if box is moving
 		self.robot_carrier = [] # Value at index = box number is the robot number that is currently moving that box
-		self.seq = 0
-		self.found = False # has the correct box been found yet?
 		for i in range(self.num_boxes):
 			self.robot_carrier.append(-1)
 		self.delivered = [False for i in range(self.num_boxes)]# True if box delivered
@@ -125,35 +137,46 @@ class boxes():
 			self.by.append(self.box_c[i,1])
 			
 	def check_for_boxes(self,robots):
-		if self.seq < self.num_boxes: 
-			if self.check_b[self.seq] == False:
-				dist_to_seq = cdist([self.box_c[self.seq]],robots.rob_c)				
-				mini = dist_to_seq.min() # find the minimum distance per robo
-				qu = mini <= box_range # True/False list to question: is this box within range of the robot
-				if qu == True: # if at least one box is within range 
-					for i in range(robots.num_agents):
-						if dist_to_seq[0,i] == mini: #and self.check_b[self.seq] == False: # if robot is within range of robot
-							self.check_b[self.seq] = True # the box is now picked up
-							robots.check_r[i] = True # the robot now has a box
-							self.robot_carrier[self.seq] = i # the robot is assigned to that box
-							robots.holding_box[i] = self.seq # the box is assigned to that robot
-							break
-
-	def box_iterate(self,robots): 
+		box_to_rob = cdist(self.box_c,robots.rob_c)
+		btr_list = convert_to_list(box_to_rob)
+		mini = box_to_rob.min(1)
+		qu = mini <= box_range
+		if True in qu:
+			for i in range(self.num_boxes):
+				if self.check_b[i] == False and qu[i] == True:
+					minimum = mini[i]
+					btr_list_current = btr_list[i]
+					btr_list_current = convert_to_list(btr_list_current)
+					counted = btr_list_current.count(minimum)
+					index = btr_list_current.index(minimum)
+					if robots.check_r[index] == False:
+						self.check_b[i] = True
+						robots.check_r[index] = True
+						self.robot_carrier[i] = index
+						robots.holding_box[index] = i 
+					
+					elif robots.check_r[index] == True:
+						for s in range(1,counted):
+							index = btr_list_current.index(minimum,s)
+							if robots.check_r[index] == False:
+								self.check_b[i] = True
+								robots.check_r[index] = True
+								self.robot_carrier[i] = index
+								robots.holding_box[index] = i
+								break 
+								
+					
+	def iterate(self,robots):
 		self.check_for_boxes(robots)
-		# 
-		
-		if self.check_b[self.seq] == True:
-			self.bx[self.seq] = robots.rob_c[self.robot_carrier[self.seq],0]
-			self.by[self.seq] = robots.rob_c[self.robot_carrier[self.seq],1]
-			if self.bx[self.seq] > width-exit_width:
-				self.delivered[self.seq] = True
-				robots.check_r[self.robot_carrier[self.seq]] = False
-				robots.holding_box[self.robot_carrier[self.seq]] = -1
-				self.seq += 1
-				if self.seq > self.num_boxes:
-					finished = True
-		return (self.delivered, self.seq)
+		for i in range(self.num_boxes):
+			if self.check_b[i] == True and self.bx[i] <= width-exit_width:
+				self.bx[i] = robots.x[self.robot_carrier[i]]
+				self.by[i] = robots.y[self.robot_carrier[i]]
+				if self.bx[i] > width-exit_width:
+					self.delivered[i] = True
+					robots.check_r[self.robot_carrier[i]] = False
+					robots.holding_box[self.robot_carrier[i]] = -1
+		return self.delivered
 								
 ## Avoidance behaviour for avoiding the warehouse walls ##		
 def avoidance(rob_c,map): # input the agent positions array and the warehouse map 
@@ -182,7 +205,7 @@ def avoidance(rob_c,map): # input the agent positions array and the warehouse ma
 		
 	# Fy is Force on the agent in y direction due to proximity to the horziontal walls 
 	# This equation was designed to be very high when the agent is close to the wall and close to 0 otherwise
-	Fy = np.exp(-2*abs(difference_in_x) + R_wall)
+	Fy = np.exp(-2*abs(difference_in_x) + 30)
 	# The Force is zero if the interaction is FALSE meaning that the agent is safely within the warehouse boundary (so that is does not keep going forever if there is a mistake)
 	Fy = Fy*difference_in_x*interaction	
 
@@ -191,8 +214,8 @@ def avoidance(rob_c,map): # input the agent positions array and the warehouse ma
 	y_upper_wall_limit = agentsy[:, np.newaxis] <= map.limv.T[1]
 	interaction = y_lower_wall_limit*y_upper_wall_limit
 	
-	Fx = np.exp(-2*abs(difference_in_y) + R_wall)
-	Fx = Fx*difference_in_y*interaction
+	Fx = np.exp(-2*abs(difference_in_y) + 30)
+	Fx = Fx*difference_in_y*interaction 
 	
 	# For each agent the force in x and y is the sum of the forces from each wall
 	Fx = np.sum(Fx, axis=1)
@@ -214,28 +237,33 @@ def random_walk(swarm,boxes):
 	F_heading = -np.array([[heading_x[n], heading_y[n]] for n in range(0, swarm.num_agents)])
 	
 	# Agent-agent avoidance
+	R = 20 # repulsion strength
 	r = repulsion_distance # distance at which repulsion is felt (set at start of code)
 	
 	# Compute (euclidean == cdist) distance between agents
 	agent_distance = cdist(swarm.rob_c, swarm.rob_c)
 	box_dist = cdist(boxes.box_c,swarm.rob_c)
-	
+
 	# Compute vectors between agents
 	proximity_vectors = swarm.rob_c[:,:,np.newaxis]-swarm.rob_c.T[np.newaxis,:,:] 
 	proximity_to_boxes = boxes.box_c[:,:,np.newaxis] - swarm.rob_c.T[np.newaxis,:,:]
+
 	# Force on agent due to proximity to other agents
-	F_agent = R_rob*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents-1)	
+	F_agent = R*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents-1)	
 	F_agent = np.sum(F_agent, axis =0).T # Sum of proximity forces
-	F_box = R_box*r*np.exp(-box_dist/r)[:,np.newaxis,:]*proximity_to_boxes/(boxes.num_boxes-1)
+	
+	F_box = R*r*np.exp(-box_dist/r)[:,np.newaxis,:]*proximity_to_boxes/(boxes.num_boxes-1)
 	F_box = np.sum(F_box,axis=0)
 	
 	F_boxes = np.zeros([2,swarm.num_agents])
 	for i in range(swarm.num_agents):
-		F_boxes[0,i] = F_box[0,i] #robot x
-		F_boxes[1,i] = F_box[1,i] #robot y
+		if swarm.check_r[i] == True:
+			F_boxes[0,i] = F_box[0,i] #robot x
+			F_boxes[1,i] = F_box[1,i] #robot y
+
 	# Force on agent due to proximity to walls
 	F_wall_avoidance = avoidance(swarm.rob_c, swarm.map)
-	
+
 	# Forces added together
 	F_agent += F_wall_avoidance + F_heading + F_boxes.T
 	F_x = F_agent.T[0] # Force in x
@@ -249,16 +277,21 @@ def random_walk(swarm,boxes):
 	M = -np.array([[move_x[n], move_y[n]] for n in range(0, swarm.num_agents)])
 	
 	# New agent positions 
-	swarm.rob_c += M	
+	swarm.rob_c += M
+	swarm.x = swarm.rob_c[:,0]
+	swarm.y = swarm.rob_c[:,1]
+			
 ##########################################################
 
 def set_up(time,r,b):
 	global counter
 	counter = 1
-	global finished 
-	finished = False
-	swarm_group = swarm(r)
-	box_group = boxes(b)
+	global finished
+	finished = False	
+	num_agents = r
+	num_boxes = b
+	swarm_group = swarm(num_agents)
+	box_group = boxes(num_boxes)
 	swarm_group.gen_agents()
 	box_group.check_for_boxes_set_up(swarm_group)
 	
@@ -268,16 +301,22 @@ def set_up(time,r,b):
 	warehouse_map.warehouse_map(width,height)
 	warehouse_map.gen()
 	swarm_group.map = warehouse_map
-	swarm_group.robot_iterate(box_group)
-	box_group.box_iterate(swarm_group)
-	
+	swarm_group.iterate(box_group)
+	box_group.iterate(swarm_group)
+
 	while counter <= time:
-		swarm_group.robot_iterate(box_group)
-		box_group.box_iterate(swarm_group)
+		swarm_group.iterate(box_group)
+		box_group.iterate(swarm_group)
 		if finished == True:
-			return counter
+			return (1.0, counter)
 			exit()
-	return time
+	sr = 0 
+	for i in range(num_boxes):
+		if box_group.delivered[i] == True:
+			sr+=1
+	if sr > 0:
+		sr = sr/num_boxes
+	return (sr, counter)
 
 if ani == True: 
 	swarm = swarm(num_agents)
@@ -291,29 +330,26 @@ if ani == True:
 	warehouse_map.warehouse_map(width,height)
 	warehouse_map.gen()
 	swarm.map = warehouse_map
-	swarm.robot_iterate(boxes)
-	boxes.box_iterate(swarm)
+	swarm.iterate(boxes)
+	boxes.iterate(swarm)
 	
 	fig = plt.figure()
 	ax = plt.axes(xlim=(0, width), ylim=(0, height))
-	dot, = ax.plot([swarm.rob_c[i,0] for i in range(swarm.num_agents)],[swarm.rob_c[i,1] for i in range(num_agents)],
+	dot, = ax.plot([swarm.x[i] for i in range(swarm.num_agents)],[swarm.y[i] for i in range(num_agents)],
 				  'ko',
 				  markersize = marker_size, fillstyle = 'none')
-	box, = ax.plot([boxes.bx[i] for i in range(boxes.num_boxes)],[boxes.by[i] for i in range(boxes.num_boxes)], 'rs', markersize = marker_size)
-	seq, = ax.plot([boxes.bx[0]],[boxes.by[0]],'ks',markersize = marker_size)
-
+	box, = ax.plot([boxes.bx[i] for i in range(boxes.num_boxes)],[boxes.by[i] for i in range(num_boxes)], 'rs', markersize = marker_size)
 	#cir, = ax.plot([radius,radius*3,radius*5,radius*7,10,10,10,10],[10,10,10,10,radius,radius*3,radius*5,radius*7],'ko',markersize = marker_size)
 	
 	plt.axis('square')
 	plt.axis([0,width,0,height])
-	def animate(i):
-		swarm.robot_iterate(boxes)
-		boxes.box_iterate(swarm)
-		
-		dot.set_data([swarm.rob_c[n,0] for n in range(num_agents)],[swarm.rob_c[n,1] for n in range(num_agents)])
-		box.set_data([boxes.bx[n] for n in range(boxes.num_boxes)],[boxes.by[n] for n in range(boxes.num_boxes)])
-		seq.set_data([boxes.bx[boxes.seq],[boxes.by[boxes.seq]]])
 
+	def animate(i):
+		swarm.iterate(boxes)
+		boxes.iterate(swarm)
+		
+		dot.set_data([swarm.x[n] for n in range(num_agents)],[swarm.y[n] for n in range(num_agents)])
+		box.set_data([boxes.bx[n] for n in range(boxes.num_boxes)],[boxes.by[n] for n in range(boxes.num_boxes)])
 		plt.title("Time is "+str(counter)+"s")
 		if finished == True:
 			exit()
