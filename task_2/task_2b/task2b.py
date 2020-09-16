@@ -50,10 +50,10 @@ R_wall = 35
 
 counter = 1
 finished = False
-ani = False
+ani = True
 if ani == True:
 	num_agents = 30
-	num_boxes = 3
+	num_boxes = 30
 	marker_size = width*0.5/20 #diameter
 	
 class swarm():
@@ -89,9 +89,8 @@ class swarm():
 		global counter
 		global finished
 		counter = 1 + counter
-		#if False not in these_boxes.delivered and finished == False:
-		#	finished = True
-		#return finished
+		if False not in these_boxes.delivered and finished == False:
+			finished = True
 def convert_to_list(self):
 	listed = []
 	for i in range(len(self)):
@@ -110,7 +109,7 @@ class boxes():
 		for i in range(self.num_boxes):
 			self.robot_carrier.append(-1)
 		self.delivered = [False for i in range(self.num_boxes)]# True if box delivered
-
+		
 	def generate_boxes(self):
 		self.box_c = np.zeros((self.num_boxes,2))
 		for i in range(self.num_boxes):
@@ -142,7 +141,8 @@ class boxes():
 
 	def box_iterate(self,robots): 
 		self.check_for_boxes(robots)
-		#global finished
+		# 
+		
 		if self.check_b[self.seq] == True:
 			self.bx[self.seq] = robots.rob_c[self.robot_carrier[self.seq],0]
 			self.by[self.seq] = robots.rob_c[self.robot_carrier[self.seq],1]
@@ -150,8 +150,9 @@ class boxes():
 				self.delivered[self.seq] = True
 				robots.check_r[self.robot_carrier[self.seq]] = False
 				robots.holding_box[self.robot_carrier[self.seq]] = -1
-				self.check_b[self.seq] = False
 				self.seq += 1
+				if self.seq > self.num_boxes:
+					finished = True
 		return (self.delivered, self.seq)
 								
 ## Avoidance behaviour for avoiding the warehouse walls ##		
@@ -254,8 +255,8 @@ def random_walk(swarm,boxes):
 def set_up(time,r,b):
 	global counter
 	counter = 1
-	#global finished 
-	#finished = False
+	global finished 
+	finished = False
 	swarm_group = swarm(r)
 	box_group = boxes(b)
 	swarm_group.gen_agents()
@@ -273,7 +274,7 @@ def set_up(time,r,b):
 	while counter <= time:
 		swarm_group.robot_iterate(box_group)
 		box_group.box_iterate(swarm_group)
-		if False not in box_group.delivered:
+		if finished == True:
 			return counter
 			exit()
 	return time

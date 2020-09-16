@@ -9,24 +9,24 @@ def file_opener(name):
 	return time_dict
 
 
-name1 = "task_1_times_R100_B50"
-name2 = "task_1_times_R100_B100"
+name1 = "task_1_sr_R50_B50"
+name2 = "task_1_sr_R100_B50"
 name3 = "times_R100125_B1050"
 name4 = "times_R100125_B50100"
 name5 = "times_R50100_B50100"
 name6 = "times_R25_B100"
 #name_first = "times_R1050_B1050"
 times = {}
-times = file_opener(name1)
+times = file_opener(name2)
 print(times)
 
 #for r in range(10,101,5):
 #	for b in range(10,51,5): 
 #		times[r][b] = file_opener(name1)[r][b]
-for r in range(10,101,5):####
-	#times[r] = {} 
-	for b in range(55,101,5):
-		times[r][b] = file_opener(name2)[r][b]		
+for r in range(10,51,2):####
+	times[r] = {} 
+	for b in range(10,51,2):
+		times[r][b] = file_opener(name1)[r][b]		
 #for r in range(100,126,5):
 #	times[r] = {} 
 #	for b in range(10,51,10):
@@ -41,6 +41,6 @@ for r in range(10,101,5):####
 #	for b in range(40,101,10):
 #		times[r][b] = file_opener(name6)[r][b]
 
-f = open("total_time_results.txt","w+")
+f = open("total_sr_results.txt","w+")
 f.write(str(times))
 f.close()
