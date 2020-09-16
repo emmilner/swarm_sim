@@ -117,7 +117,21 @@ class boxes():
 		self.by = []
 		for i in range(self.num_boxes):
 			self.bx.append(self.box_c[i,0])
-			self.by.append(self.box_c[i,1])
+			self.by.append(self.box_c[i,1])	
+						
+	def pick_up_box(self,robots,rob_num):
+		self.check_b[self.seq] = True # the box is now picked up
+		robots.check_r[rob_num] = True # the robot now has a box
+		self.robot_carrier[self.seq] = rob_num # the robot is assigned to that box
+		robots.holding_box[rob_num] = self.seq # the box is assigned to that robot
+	
+	def drop_box(self,robots):
+		self.delivered[self.seq] = True
+		robots.check_r[self.robot_carrier[self.seq]] = False
+		robots.holding_box[self.robot_carrier[self.seq]] = -1
+		self.seq += 1
+		if self.seq > self.num_boxes:
+			finished = True
 			
 	def check_for_boxes(self,robots):
 		if self.seq < self.num_boxes: 
@@ -128,26 +142,16 @@ class boxes():
 				if qu == True: # if at least one box is within range 
 					for i in range(robots.num_agents):
 						if dist_to_seq[0,i] == mini: #and self.check_b[self.seq] == False: # if robot is within range of robot
-							self.check_b[self.seq] = True # the box is now picked up
-							robots.check_r[i] = True # the robot now has a box
-							self.robot_carrier[self.seq] = i # the robot is assigned to that box
-							robots.holding_box[i] = self.seq # the box is assigned to that robot
+							boxes.pick_up_box(robots,i)
 							break
 
 	def box_iterate(self,robots): 
 		self.check_for_boxes(robots)
-		# 
-		
 		if self.check_b[self.seq] == True:
 			self.bx[self.seq] = robots.rob_c[self.robot_carrier[self.seq],0]
 			self.by[self.seq] = robots.rob_c[self.robot_carrier[self.seq],1]
-			if self.bx[self.seq] > width-exit_width:
-				self.delivered[self.seq] = True
-				robots.check_r[self.robot_carrier[self.seq]] = False
-				robots.holding_box[self.robot_carrier[self.seq]] = -1
-				self.seq += 1
-				if self.seq > self.num_boxes:
-					finished = True
+			if self.bx[self.seq] > width-exit_width: # if correct box is in the exit zone 
+				boxes.drop_box(robots)
 		return (self.delivered, self.seq)
 								
 ## Avoidance behaviour for avoiding the warehouse walls ##		
