@@ -32,7 +32,7 @@ import os
 
 ### INPUTS ###
 #num_agents = 20 # Number of agents in swarm (default 50)
-radius = 12.5 # Radius of single agent (5)
+radius = 12.5 # Radius of single agent (half of 25)
 width = 500 # Width of warehouse (100)
 height = 500 # Height (depth) of warehouse (100)
 speed = 2 # Agent speed (0.5)
@@ -41,20 +41,21 @@ repulsion_distance = radius/2 # Distance at which repulsion is first felt (3)
 
 #num_boxes = 3
 box_radius = radius
-box_range = 4*box_radius # range at which a box can be picked up 
+box_range = 2*box_radius # range at which a box can be picked up 
+print("box range is ", box_range)
 exit_width = int(0.2*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
 R_rob = 20
-R_box = 15
+R_box = 0
 R_wall = 35
 
 counter = 1
 finished = False
 ani = True
 if ani == True:
-	num_agents = 10
-	num_boxes = 3
-	marker_size = width*0.5/20 #diameter
+	num_agents = 25
+	num_boxes = 8
+	marker_size = radius #diameter
 	
 def convert_to_list(self):
 	listed = []
@@ -67,18 +68,18 @@ class swarm():
 		self.rob_c = []
 		self.speed = speed # Agent speed 
 		self.heading = []
-		#0.0314*np.random.randint(-100,100,self.num_agents) # create a new heading direction for each agent (this is pi * angle in degrees between -100 and + 100 = angle in radians)
-		self.check_r = []
 		self.num_agents = num_agents
-		#[False for i in range(num_agents)]
+		#0.0314*np.random.randint(-100,100,self.num_agents) # create a new heading direction for each agent (this is pi * angle in degrees between -100 and + 100 = angle in radians)
+		self.check_r = [False for i in range(self.num_agents)]
+		self.holding_box = [] # value is -1 if the robot has no box
+		self.last_box = []
+		for i in range(self.num_agents):
+			self.holding_box.append(-1)
+			self.last_box.append(-1)
 
 	def gen_agents(self): # generate the agent's positions 
 		# rob_c is the centre point coordinate of the robot
 		self.heading = 0.0314*np.random.randint(-100,100,self.num_agents) # create a new heading direction for each agent (this is pi * angle in degrees between -100 and + 100 = angle in radians)
-		self.check_r = [False for i in range(self.num_agents)]
-		self.holding_box = [] # value is -1 if the robot has no box
-		for i in range(self.num_agents):
-			self.holding_box.append(-1)
 		self.rob_c = np.zeros((self.num_agents,2)) # set all to zero initially
 		
 		for i in range(self.num_agents): # for every agent generate a random staring position
@@ -129,15 +130,19 @@ class boxes():
 		robots.check_r[rob_num] = True # the robot now has a box
 		self.robot_carrier[box_num] = rob_num # the robot is assigned to that box
 		robots.holding_box[rob_num] = box_num # the box is assigned to that robot
+		self.bx[box_num] = robots.rob_c[self.robot_carrier[box_num],0]
+		self.by[box_num] = robots.rob_c[self.robot_carrier[box_num],1]
 
 	def drop_box(self,robots,rob_num,box_num):
-		self.delivered[box_num] = True
-		robots.check_r[rob_num] = False
-		robots.holding_box[rob_num] = -1
-		#self.robot_carrier[box_num] = -1
-		#self.bx[box_num] = robots.rob_c[rob_num,0]
-		#self.by[box_num] = robots.rob_c[rob_num,1]
+	#	self.bx[box_num] = robots.rob_c[self.robot_carrier[box_num],0]
+	#	self.by[box_num] = robots.rob_c[self.robot_carrier[box_num],1]
+		self.check_b[box_num] = False # the box is now picked up
+		robots.check_r[rob_num] = False # the robot now has a box
+		self.robot_carrier[box_num] = -1 # the robot is assigned to that box
+		robots.holding_box[rob_num] = -1 # the box is assigned to that robot
+		
 		if box_num == self.seq:
+			self.delivered[box_num] = True
 			self.seq += 1
 			if self.seq > self.num_boxes:
 				finished = True
@@ -149,33 +154,39 @@ class boxes():
 			qu = mini <= box_range # True/False list to question: is this box within range of the robot
 			if qu == True: # if at least one box is within range 
 				for i in range(robots.num_agents):
-					if dist_to_seq[0,i] == mini: # if robot is within range of robot
+					if dist_to_seq[0,i] == mini and robots.check_r[i] == False: # if robot is within range of robot
 						boxes.pick_up_box(robots,i,self.seq)
-						break
-		#for b in range(self.num_boxes):
+						#break
+		
 		dist_to_box = cdist(self.box_c,robots.rob_c)
 		mini = dist_to_box.min(1) # find the minimum distance per robot	
 		dist_to_box = convert_to_list(dist_to_box)
 		qu = mini <= box_range # True/False list to question: is this box within range of the robot
-		if True in qu: # if at least one box is within range 
-				for b in range(self.num_boxes):
-					if self.check_b[b] == False and b != self.seq and qu[b] == True: # if the box is free and not the seq box and it is within range of a free agent
-						prob = np.random.randint(0,100)
-						if prob <= 50:
-							dist_to_box_b = convert_to_list(dist_to_box[b]) #list of robot distances to that box b
-							counted = dist_to_box_b.count(mini[b])
-							index = dist_to_box_b.index(mini[b])
-							if robots.check_r[index] == False and counted == 1: # if robot is available then pick up the box
-								boxes.pick_up_box(robots,index,b)
-					
+
+		for b in range(self.num_boxes):
+			if qu[b] == True and self.check_b[b] == False and self.delivered[b] == False:
+				dist_to_rob = cdist(self.box_c,robots.rob_c)
+				dist_to_rob = convert_to_list(dist_to_rob[b])
+				robot = dist_to_rob.index(mini[b])
+				prob = np.random.randint(0,100)
+				if robots.check_r[robot] == False and prob <= 100 and b != robots.last_box[robot]:
+					boxes.pick_up_box(robots,robot,b)
+					self.bx[b] = robots.rob_c[self.robot_carrier[b],0]
+					self.by[b] = robots.rob_c[self.robot_carrier[b],1]
 
 	def box_iterate(self,robots): 
 		self.check_for_boxes(robots)
 		for b in range(self.num_boxes):
-			if self.check_b[b] == True and self.delivered[b] == False:
+			prob = np.random.randint(0,100)
+			if self.check_b[b] == True and prob == 5 and b != self.seq: 
+				robots.last_box[self.robot_carrier[b]] = b
+				boxes.drop_box(robots,self.robot_carrier[b],b)
+					
+		for b in range(self.num_boxes):
+			if self.check_b[b] == True:
 				self.bx[b] = robots.rob_c[self.robot_carrier[b],0]
 				self.by[b] = robots.rob_c[self.robot_carrier[b],1]
-
+				
 		if self.bx[self.seq] > width-exit_width: # if correct box is in the exit zone 
 				boxes.drop_box(robots,self.robot_carrier[self.seq],self.seq)
 		return (self.delivered, self.seq)
@@ -249,9 +260,11 @@ def random_walk(swarm,boxes):
 	proximity_vectors = swarm.rob_c[:,:,np.newaxis]-swarm.rob_c.T[np.newaxis,:,:] 
 	proximity_to_boxes = boxes.box_c[:,:,np.newaxis] - swarm.rob_c.T[np.newaxis,:,:]
 	# Force on agent due to proximity to other agents
-	F_agent = R_rob*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents-1)	
+#####	F_agent = R_rob*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents-1)	
+	F_agent = R_rob*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents)	
 	F_agent = np.sum(F_agent, axis =0).T # Sum of proximity forces
-	F_box = R_box*r*np.exp(-box_dist/r)[:,np.newaxis,:]*proximity_to_boxes/(boxes.num_boxes-1)
+#	F_box = R_box*r*np.exp(-box_dist/r)[:,np.newaxis,:]*proximity_to_boxes/(boxes.num_boxes-1)
+	F_box = R_box*r*np.exp(-box_dist/r)[:,np.newaxis,:]*proximity_to_boxes/(boxes.num_boxes)
 	F_box = np.sum(F_box,axis=0)
 	
 	F_boxes = np.zeros([2,swarm.num_agents])
