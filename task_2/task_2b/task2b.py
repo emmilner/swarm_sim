@@ -45,7 +45,7 @@ box_range = 4*box_radius # range at which a box can be picked up
 exit_width = int(0.2*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
 R_rob = 20
-R_box = 5
+R_box = 15
 R_wall = 35
 
 counter = 1
@@ -91,11 +91,6 @@ class swarm():
 		counter = 1 + counter
 		if False not in these_boxes.delivered and finished == False:
 			finished = True
-def convert_to_list(self):
-	listed = []
-	for i in range(len(self)):
-		listed.append(self[i])
-	return listed 
 
 class boxes():
 	def __init__(self,number_of_boxes):
