@@ -41,12 +41,12 @@ repulsion_distance = radius/2 # Distance at which repulsion is first felt (3)
 
 #num_boxes = 3
 box_radius = radius
-box_range = 2*box_radius # range at which a box can be picked up 
+box_range = 2.1*box_radius # range at which a box can be picked up 
 print("box range is ", box_range)
 exit_width = int(0.2*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
-R_rob = 20
-R_box = 0
+R_rob = 30
+R_box = 30 ##not working
 R_wall = 35
 
 counter = 1
@@ -54,7 +54,7 @@ finished = False
 ani = True
 if ani == True:
 	num_agents = 25
-	num_boxes = 8
+	num_boxes = 75
 	marker_size = radius #diameter
 	
 def convert_to_list(self):
@@ -146,6 +146,18 @@ class boxes():
 			self.seq += 1
 			if self.seq > self.num_boxes:
 				finished = True
+	
+	def calc_dist(self,robots,r,b):
+		x_diff = robots.rob_c[r,0] - self.bx[b]
+		y_diff = robots.rob_c[r,1] - self.by[b]
+		distance = np.sqrt(np.square(x_diff) + np.square(y_diff))
+		return distance
+	
+	def convert_dict_to_list(self,robots,dict_to_convert):
+		distance_list = np.zeros(robots.num_agents)
+		for r in range(robots.num_agents): 
+			distance_list[r] = dict_to_convert[r]
+		return distance_list
 			
 	def check_for_boxes(self,robots):
 		if self.check_b[self.seq] == False: # if the seq box hasn't been picked up yet 
@@ -158,21 +170,28 @@ class boxes():
 						boxes.pick_up_box(robots,i,self.seq)
 						#break
 		
-		dist_to_box = cdist(self.box_c,robots.rob_c)
-		mini = dist_to_box.min(1) # find the minimum distance per robot	
-		dist_to_box = convert_to_list(dist_to_box)
-		qu = mini <= box_range # True/False list to question: is this box within range of the robot
-
+		#dist_to_box = cdist(self.box_c,robots.rob_c)
+		dists = {}
 		for b in range(self.num_boxes):
-			if qu[b] == True and self.check_b[b] == False and self.delivered[b] == False:
-				dist_to_rob = cdist(self.box_c,robots.rob_c)
-				dist_to_rob = convert_to_list(dist_to_rob[b])
-				robot = dist_to_rob.index(mini[b])
-				prob = np.random.randint(0,100)
-				if robots.check_r[robot] == False and prob <= 100 and b != robots.last_box[robot]:
-					boxes.pick_up_box(robots,robot,b)
-					self.bx[b] = robots.rob_c[self.robot_carrier[b],0]
-					self.by[b] = robots.rob_c[self.robot_carrier[b],1]
+			dists[b] = {}
+			for r in range(robots.num_agents):
+				dists[b][r] = self.calc_dist(robots,r,b)
+		
+		for b in range(self.num_boxes):
+			if self.check_b[b] == False and self.delivered[b] == False:
+				distances = boxes.convert_dict_to_list(robots,dists[b])
+				qu = distances <= box_range # True/False list to question: is this box within range of the robot
+				if any(qu) == True: #if any of the robots are close enough to box b
+					#Which robots are close and which is closest?
+					qu_ans = qu*distances
+					for robot in range(robots.num_agents):
+						if qu_ans[robot] != 0:
+							prob = np.random.randint(0,100)
+							if robots.check_r[robot] == False and prob <= 100 and b != robots.last_box[robot]:
+								boxes.pick_up_box(robots,robot,b)
+								self.bx[b] = robots.rob_c[self.robot_carrier[b],0] ### maybe change to robot
+								self.by[b] = robots.rob_c[self.robot_carrier[b],1]
+
 
 	def box_iterate(self,robots): 
 		self.check_for_boxes(robots)
@@ -260,11 +279,11 @@ def random_walk(swarm,boxes):
 	proximity_vectors = swarm.rob_c[:,:,np.newaxis]-swarm.rob_c.T[np.newaxis,:,:] 
 	proximity_to_boxes = boxes.box_c[:,:,np.newaxis] - swarm.rob_c.T[np.newaxis,:,:]
 	# Force on agent due to proximity to other agents
-#####	F_agent = R_rob*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents-1)	
-	F_agent = R_rob*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents)	
+	F_agent = R_rob*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents-1)	
+#	F_agent = R_rob*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents)	
 	F_agent = np.sum(F_agent, axis =0).T # Sum of proximity forces
-#	F_box = R_box*r*np.exp(-box_dist/r)[:,np.newaxis,:]*proximity_to_boxes/(boxes.num_boxes-1)
-	F_box = R_box*r*np.exp(-box_dist/r)[:,np.newaxis,:]*proximity_to_boxes/(boxes.num_boxes)
+	F_box = R_box*r*np.exp(-box_dist/r)[:,np.newaxis,:]*proximity_to_boxes/(boxes.num_boxes-1)
+#	F_box = R_box*r*np.exp(-box_dist/r)[:,np.newaxis,:]*proximity_to_boxes/(boxes.num_boxes)
 	F_box = np.sum(F_box,axis=0)
 	
 	F_boxes = np.zeros([2,swarm.num_agents])
