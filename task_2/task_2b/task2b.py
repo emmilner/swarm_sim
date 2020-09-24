@@ -46,7 +46,7 @@ print("box range is ", box_range)
 exit_width = int(0.2*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
 R_rob = 20
-R_box = 10
+R_box = 1
 R_wall = 25
 
 pick_up_prob = 100 # prob is <= this 
@@ -56,9 +56,9 @@ counter = 1
 finished = False
 ani = False
 if ani == True:
-	num_agents = 100
-	num_boxes = 100
-	marker_size = 20 #width*0.5/20 #diameter
+	num_agents = 10
+	num_boxes = 10
+	marker_size = width*0.5/20 #diameter
 	
 def convert_to_list(self):
 	listed = []
@@ -173,15 +173,14 @@ class boxes():
 		return distance_list
 			
 	def check_for_boxes(self,robots):
-		if finished == False: 
-			if self.check_b[self.seq] == False: # if the seq box hasn't been picked up yet 
-				dist_to_seq = cdist([self.box_c[self.seq]],robots.rob_c)				
-				mini = dist_to_seq.min() # find the minimum distance per robot
-				qu = mini <= box_range # True/False list to question: is this box within range of the robot
-				if qu == True: # if at least one box is within range 
-					for i in range(robots.num_agents):
-						if dist_to_seq[0,i] == mini and robots.check_r[i] == False: # if robot is within range of robot
-							self.pick_up_box(robots,i,self.seq)
+		if self.check_b[self.seq] == False: # if the seq box hasn't been picked up yet 
+			dist_to_seq = cdist([self.box_c[self.seq]],robots.rob_c)				
+			mini = dist_to_seq.min() # find the minimum distance per robot
+			qu = mini <= box_range # True/False list to question: is this box within range of the robot
+			if qu == True: # if at least one box is within range 
+				for i in range(robots.num_agents):
+					if dist_to_seq[0,i] == mini and robots.check_r[i] == False: # if robot is within range of robot
+						self.pick_up_box(robots,i,self.seq)
 		
 		#dist_to_box = cdist(self.box_c,robots.rob_c)
 		dists = {}
@@ -352,7 +351,8 @@ def set_up(time,r,b):
 	
 	while counter <= time:
 		swarm_group.robot_iterate(box_group)
-		box_group.box_iterate(swarm_group)
+		if finished == False: 
+			box_group.box_iterate(swarm_group)
 		if finished == True:
 			return (1,counter)
 			exit()

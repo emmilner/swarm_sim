@@ -46,7 +46,7 @@ print("box range is ", box_range)
 exit_width = int(0.2*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
 R_rob = 20
-R_box = 10
+R_box = 1
 R_wall = 25
 
 pick_up_prob = 100 # prob is <= this 
@@ -54,11 +54,11 @@ drop_off_prob = 5 # prob is <= this
 
 counter = 1
 finished = False
-ani = False
+ani = True
 if ani == True:
-	num_agents = 100
-	num_boxes = 100
-	marker_size = 20 #width*0.5/20 #diameter
+	num_agents = 10
+	num_boxes = 10
+	marker_size = width*0.5/20 #diameter
 	
 def convert_to_list(self):
 	listed = []
