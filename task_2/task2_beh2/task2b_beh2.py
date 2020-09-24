@@ -41,12 +41,12 @@ repulsion_distance = radius/2# Distance at which repulsion is first felt (3)
 
 #num_boxes = 3
 box_radius = radius
-box_range = 1.5*box_radius # range at which a box can be picked up 
+box_range = 2.5*box_radius # range at which a box can be picked up 
 print("box range is ", box_range)
 exit_width = int(0.2*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
 R_rob = 20
-R_box = 1
+R_box = 5
 R_wall = 25
 
 pick_up_prob = 100 # prob is <= this 
@@ -56,8 +56,8 @@ counter = 1
 finished = False
 ani = True
 if ani == True:
-	num_agents = 10
-	num_boxes = 10
+	num_agents = 60
+	num_boxes = 20
 	marker_size = width*0.5/20 #diameter
 	
 def convert_to_list(self):
@@ -293,10 +293,6 @@ def random_walk(swarm,boxes):
 #	print("box vectors shape",np.shape(proximity_to_boxes))
 	
 	F_box = R_box*r*np.exp(-box_dist/r)[:,np.newaxis,:]*proximity_to_boxes/(swarm.num_agents-1)	
-	n = boxes.robot_carrier[boxes.seq]
-	print(n)
-	print(F_box[n,n])
-#	print("F_box before sum shape",np.shape(F_box))
 #	F_box = R_box*np.exp(-box_dist*4/(radius/1.2))[:,np.newaxis,:]*proximity_to_boxes/(swarm.num_agents)
 	F_box = np.sum(F_box,axis=0)
 #	print("F_box after sum shape",np.shape(F_box))
@@ -304,16 +300,15 @@ def random_walk(swarm,boxes):
 	# Force on agent due to proximity to other agents
 	F_agent = R_rob*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents-1)	
 #	print("F_agent before sum shape",np.shape(F_agent))
-	F_agent = np.sum(F_agent, axis =0).T # Sum of proximity forces
 #	print("F_agent after sum shape",np.shape(F_agent))
+	n = boxes.robot_carrier[boxes.seq]
+	if n != -1:
+		for N in range(swarm.num_agents):
+			if N != n:
+				F_agent[n][0][N] = F_agent[n][0][N]*100
+				F_agent[n][1][N] = F_agent[n][1][N]*100
+	F_agent = np.sum(F_agent, axis =0).T # Sum of proximity forces
 
-	#*F_box = R_box*r*np.exp(-box_dist/r)[:,np.newaxis,:]*proximity_to_boxes/(boxes.num_boxes-1)
-	#*F_box = np.sum(F_box,axis=0)
-
-	#*F_boxes = np.zeros([2,swarm.num_agents])
-	#*for i in range(swarm.num_agents):
-	#*	F_boxes[0,i] = F_box[0,i] #robot x
-	#*	F_boxes[1,i] = F_box[1,i] #robot y
 	# Force on agent due to proximity to walls
 	F_wall_avoidance = avoidance(swarm.rob_c, swarm.map)
 #	print("F_wall_avoidance shape",np.shape(F_wall_avoidance))
