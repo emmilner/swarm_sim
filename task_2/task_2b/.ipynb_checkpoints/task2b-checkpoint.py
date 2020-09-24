@@ -104,7 +104,7 @@ class swarm():
 		counter = 1 + counter
 		if False not in these_boxes.delivered and finished == False:
 			finished = True
-
+			
 class boxes():
 	def __init__(self,number_of_boxes,robots):
 		self.num_boxes = number_of_boxes
@@ -173,15 +173,15 @@ class boxes():
 		return distance_list
 			
 	def check_for_boxes(self,robots):
-		if self.check_b[self.seq] == False: # if the seq box hasn't been picked up yet 
-			dist_to_seq = cdist([self.box_c[self.seq]],robots.rob_c)				
-			mini = dist_to_seq.min() # find the minimum distance per robot
-			qu = mini <= box_range # True/False list to question: is this box within range of the robot
-			if qu == True: # if at least one box is within range 
-				for i in range(robots.num_agents):
-					if dist_to_seq[0,i] == mini and robots.check_r[i] == False: # if robot is within range of robot
-						self.pick_up_box(robots,i,self.seq)
-						#break
+		if finished == False: 
+			if self.check_b[self.seq] == False: # if the seq box hasn't been picked up yet 
+				dist_to_seq = cdist([self.box_c[self.seq]],robots.rob_c)				
+				mini = dist_to_seq.min() # find the minimum distance per robot
+				qu = mini <= box_range # True/False list to question: is this box within range of the robot
+				if qu == True: # if at least one box is within range 
+					for i in range(robots.num_agents):
+						if dist_to_seq[0,i] == mini and robots.check_r[i] == False: # if robot is within range of robot
+							self.pick_up_box(robots,i,self.seq)
 		
 		#dist_to_box = cdist(self.box_c,robots.rob_c)
 		dists = {}
