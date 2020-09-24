@@ -42,7 +42,6 @@ repulsion_distance = radius/2# Distance at which repulsion is first felt (3)
 #num_boxes = 3
 box_radius = radius
 box_range = 2.5*box_radius # range at which a box can be picked up 
-print("box range is ", box_range)
 exit_width = int(0.2*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
 R_rob = 20
@@ -54,7 +53,7 @@ drop_off_prob = 5 # prob is <= this
 
 counter = 1
 finished = False
-ani = True
+ani = False
 if ani == True:
 	num_agents = 60
 	num_boxes = 20
@@ -353,8 +352,12 @@ def set_up(time,r,b):
 	box_group.box_iterate(swarm_group)
 	
 	while counter <= time:
-		swarm_group.robot_iterate(box_group)
-		box_group.box_iterate(swarm_group)
+		if box_group.seq >= box_group.num_boxes:
+			finished = True
+		if finished == False:
+			swarm_group.robot_iterate(box_group)
+		if finished == False:
+			box_group.box_iterate(swarm_group)
 		if finished == True:
 			return (1,counter)
 			exit()

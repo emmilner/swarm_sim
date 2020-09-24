@@ -41,12 +41,11 @@ repulsion_distance = radius/2# Distance at which repulsion is first felt (3)
 
 #num_boxes = 3
 box_radius = radius
-box_range = 1.5*box_radius # range at which a box can be picked up 
-print("box range is ", box_range)
+box_range = 2.5*box_radius # range at which a box can be picked up 
 exit_width = int(0.2*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
 R_rob = 20
-R_box = 1
+R_box = 5
 R_wall = 25
 
 pick_up_prob = 100 # prob is <= this 
