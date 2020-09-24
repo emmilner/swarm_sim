@@ -54,10 +54,10 @@ drop_off_prob = 5 # prob is <= this
 
 counter = 1
 finished = False
-ani = False
+ani = True
 if ani == True:
-	num_agents = 100
-	num_boxes = 100
+	num_agents = 10
+	num_boxes = 10
 	marker_size = 20 #width*0.5/20 #diameter
 	
 def convert_to_list(self):
@@ -293,6 +293,9 @@ def random_walk(swarm,boxes):
 #	print("box vectors shape",np.shape(proximity_to_boxes))
 	
 	F_box = R_box*r*np.exp(-box_dist/r)[:,np.newaxis,:]*proximity_to_boxes/(swarm.num_agents-1)	
+	n = boxes.robot_carrier[boxes.seq]
+	print(n)
+	print(F_box[n,n])
 #	print("F_box before sum shape",np.shape(F_box))
 #	F_box = R_box*np.exp(-box_dist*4/(radius/1.2))[:,np.newaxis,:]*proximity_to_boxes/(swarm.num_agents)
 	F_box = np.sum(F_box,axis=0)
