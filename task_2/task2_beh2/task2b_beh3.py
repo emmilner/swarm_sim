@@ -45,7 +45,7 @@ box_range = 2.5*box_radius # range at which a box can be picked up
 exit_width = int(0.2*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
 R_rob = 20
-R_box = 5
+R_box = 20
 R_wall = 25
 
 pick_up_prob = 100 # prob is <= this 
@@ -53,10 +53,10 @@ drop_off_prob = 5 # prob is <= this
 
 counter = 1
 finished = False
-ani = False
+ani = True
 if ani == True:
-	num_agents = 80
-	num_boxes = 80
+	num_agents = 100
+	num_boxes = 50
 	marker_size = width*0.5/20 #diameter
 	
 def convert_to_list(self):
@@ -124,13 +124,6 @@ class boxes():
 			self.box_c[i] = [np.random.randint(box_radius*2,width-box_radius-exit_width),np.random.randint(box_radius*2,height-box_radius)]
 		self.check_for_boxes(robots)
 		return self.box_c
-		
-#	def check_for_boxes_set_up(self,robots):
-#		self.bx = []
-#		self.by = []
-#		for i in range(self.num_boxes):
-#			self.bx.append(self.box_c[i,0])
-#			self.by.append(self.box_c[i,1])	
 						
 	def pick_up_box(self,robots,rob_num,box_num):
 		self.check_b[box_num] = True # the box is now picked up
@@ -142,8 +135,6 @@ class boxes():
 				
 
 	def drop_box(self,robots,rob_num,box_num):
-	#	self.bx[box_num] = robots.rob_c[self.robot_carrier[box_num],0]
-	#	self.by[box_num] = robots.rob_c[self.robot_carrier[box_num],1]
 		self.check_b[box_num] = False # the box is now picked up
 		robots.check_r[rob_num] = False # the robot now has a box
 		self.robot_carrier[box_num] = -1 # the robot is assigned to that box
@@ -217,7 +208,9 @@ class boxes():
 				#self.bx[b] = robots.rob_c[self.robot_carrier[b],0]
 				#self.by[b] = robots.rob_c[self.robot_carrier[b],1]
 				
-		if self.box_c[self.seq,0] > width-exit_width-radius: # if correct box is in the exit zone 
+		if self.box_c[self.seq,0] > width-exit_width-radius:
+		#and 1*np.sin(robots.heading[boxes.robot_carrier[self.seq]])<0: # if correct box is in the exit zone 
+				self.box_c[self.seq,0] += exit_width
 				self.drop_box(robots,self.robot_carrier[self.seq],self.seq)
 		return (self.delivered, self.seq)
 								
@@ -297,6 +290,7 @@ def random_walk(swarm,boxes):
 	
 	# Force on agent due to proximity to other agents
 	F_agent = R_rob*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents-1)	
+	
 	n = boxes.robot_carrier[boxes.seq]
 	if n != -1:
 		for N in range(swarm.num_agents):

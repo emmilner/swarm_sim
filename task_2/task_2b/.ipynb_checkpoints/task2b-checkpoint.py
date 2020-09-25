@@ -45,15 +45,15 @@ box_range = 2.5*box_radius # range at which a box can be picked up
 exit_width = int(0.2*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
 R_rob = 20
-R_box = 5
+R_box = 20
 R_wall = 25
 
 pick_up_prob = 100 # prob is <= this 
-drop_off_prob = 5 # prob is <= this
+drop_off_prob = -1 # prob is <= this
 
 counter = 1
 finished = False
-ani = True
+ani = False
 if ani == True:
 	num_agents = 50
 	num_boxes = 50
@@ -217,6 +217,7 @@ class boxes():
 				#self.by[b] = robots.rob_c[self.robot_carrier[b],1]
 				
 		if self.box_c[self.seq,0] > width-exit_width-radius: # if correct box is in the exit zone 
+				self.box_c[self.seq,0] += exit_width
 				self.drop_box(robots,self.robot_carrier[self.seq],self.seq)
 		return (self.delivered, self.seq)
 								
