@@ -207,7 +207,7 @@ class boxes():
 				self.box_c[b,1] = robots.rob_c[self.robot_carrier[b],1]
 				if self.box_c[b,0] > width-exit_width-radius:
 					self.delivered[b] = True
-					self.box_c[b,0] += exit_width
+					self.box_c[b,0] += exit_width + 20 
 					self.drop_box(robots,self.robot_carrier[b],b)
 		return self.delivered
 								

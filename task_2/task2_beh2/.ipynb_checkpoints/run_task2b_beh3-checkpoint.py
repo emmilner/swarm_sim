@@ -1,7 +1,7 @@
 import task2b_beh3
 
-trials = 3
-limit = 50000
+trials = 2
+limit = 500
 dictionary_sr = {}
 dictionary_time = {}
 dictionary_sr["robot"] = {}
@@ -13,10 +13,10 @@ dictionary_time["robot"] = {}
 (dictionary_time["trials no"]) = trials
 (dictionary_time["time limit"]) = limit
 
-for r in range(10,51,5):
+for r in range(10,16,1):
 	dictionary_sr[r] = {}
 	dictionary_time[r] = {}
-	for b in range(10,51,5):
+	for b in range(10,16,1):
 		time = 0 
 		sr = 0.
 		for trial in range(trials):

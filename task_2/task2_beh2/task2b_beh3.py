@@ -53,10 +53,10 @@ drop_off_prob = 5 # prob is <= this
 
 counter = 1
 finished = False
-ani = True
+ani = False
 if ani == True:
-	num_agents = 100
-	num_boxes = 50
+	num_agents = 50
+	num_boxes = 3
 	marker_size = width*0.5/20 #diameter
 	
 def convert_to_list(self):
@@ -210,7 +210,7 @@ class boxes():
 				
 		if self.box_c[self.seq,0] > width-exit_width-radius:
 		#and 1*np.sin(robots.heading[boxes.robot_carrier[self.seq]])<0: # if correct box is in the exit zone 
-				self.box_c[self.seq,0] += exit_width
+				self.box_c[self.seq,0] += exit_width + 20
 				self.drop_box(robots,self.robot_carrier[self.seq],self.seq)
 		return (self.delivered, self.seq)
 								

@@ -53,7 +53,7 @@ drop_off_prob = -1 # prob is <= this
 
 counter = 1
 finished = False
-ani = False
+ani = True
 if ani == True:
 	num_agents = 50
 	num_boxes = 50
@@ -217,7 +217,7 @@ class boxes():
 				#self.by[b] = robots.rob_c[self.robot_carrier[b],1]
 				
 		if self.box_c[self.seq,0] > width-exit_width-radius: # if correct box is in the exit zone 
-				self.box_c[self.seq,0] += exit_width
+				self.box_c[self.seq,0] += exit_width+20 
 				self.drop_box(robots,self.robot_carrier[self.seq],self.seq)
 		return (self.delivered, self.seq)
 								
@@ -351,7 +351,8 @@ def set_up(time,r,b):
 	box_group.box_iterate(swarm_group)
 	
 	while counter <= time:
-		swarm_group.robot_iterate(box_group)
+		if finished == False: 
+			swarm_group.robot_iterate(box_group)
 		if finished == False: 
 			box_group.box_iterate(swarm_group)
 		if finished == True:
