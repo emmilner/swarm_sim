@@ -53,10 +53,10 @@ drop_off_prob = 5 # prob is <= this
 
 counter = 1
 finished = False
-ani = False
+ani = True
 if ani == True:
-	num_agents = 10
-	num_boxes = 10
+	num_agents = 50
+	num_boxes = 50
 	marker_size = width*0.5/20 #diameter
 	
 def convert_to_list(self):
@@ -76,7 +76,7 @@ class swarm():
 		self.last_box = []
 		for i in range(self.num_agents):
 			self.holding_box.append(-1)
-			self.last_box.append(-1)
+			self.last_box.append([-1,-1])
 		self.rob_c = self.gen_agents()
 
 	def gen_agents(self): # generate the agent's positions 
@@ -148,7 +148,8 @@ class boxes():
 		robots.check_r[rob_num] = False # the robot now has a box
 		self.robot_carrier[box_num] = -1 # the robot is assigned to that box
 		robots.holding_box[rob_num] = -1 # the box is assigned to that robot
-		robots.last_box[rob_num] = box_num
+		robots.last_box[rob_num][1] = robots.last_box[rob_num][0]
+		robots.last_box[rob_num][0] = box_num
 		
 		if box_num == self.seq:
 			self.delivered[box_num] = True
@@ -198,7 +199,7 @@ class boxes():
 					for robot in range(robots.num_agents):
 						if qu_ans[robot] != 0 and self.check_b[b] == False:
 							prob = np.random.randint(0,100)
-							if robots.check_r[robot] == False and prob <= pick_up_prob and b != robots.last_box[robot]:
+							if robots.check_r[robot] == False and prob <= pick_up_prob and b != robots.last_box[robot][0] and b != robots.last_box[robot][1]:
 								self.pick_up_box(robots,robot,b)
 
 	def box_iterate(self,robots): 

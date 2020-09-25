@@ -55,8 +55,8 @@ counter = 1
 finished = False
 ani = False
 if ani == True:
-	num_agents = 60
-	num_boxes = 20
+	num_agents = 80
+	num_boxes = 80
 	marker_size = width*0.5/20 #diameter
 	
 def convert_to_list(self):
@@ -76,7 +76,7 @@ class swarm():
 		self.last_box = []
 		for i in range(self.num_agents):
 			self.holding_box.append(-1)
-			self.last_box.append(-1)
+			self.last_box.append([-1,-1])
 		self.rob_c = self.gen_agents()
 
 	def gen_agents(self): # generate the agent's positions 
@@ -148,7 +148,8 @@ class boxes():
 		robots.check_r[rob_num] = False # the robot now has a box
 		self.robot_carrier[box_num] = -1 # the robot is assigned to that box
 		robots.holding_box[rob_num] = -1 # the box is assigned to that robot
-		robots.last_box[rob_num] = box_num
+		robots.last_box[rob_num][1] = robots.last_box[rob_num][0]
+		robots.last_box[rob_num][0] = box_num
 		
 		if box_num == self.seq:
 			self.delivered[box_num] = True
@@ -199,7 +200,7 @@ class boxes():
 					for robot in range(robots.num_agents):
 						if qu_ans[robot] != 0 and self.check_b[b] == False:
 							prob = np.random.randint(0,100)
-							if robots.check_r[robot] == False and prob <= pick_up_prob and b != robots.last_box[robot]:
+							if robots.check_r[robot] == False and prob <= pick_up_prob and b != robots.last_box[robot][0] and b != robots.last_box[robot][1]:
 								self.pick_up_box(robots,robot,b)
 
 	def box_iterate(self,robots): 
@@ -277,7 +278,7 @@ def random_walk(swarm,boxes):
 	heading_y = 1*np.sin(swarm.heading) # move in y
 	for N in range(swarm.num_agents):
 		if N == boxes.robot_carrier[boxes.seq]:
-			heading_x[N] += 5
+			heading_x[N] += 1
 	
 	F_heading = -np.array([[heading_x[n], heading_y[n]] for n in range(0, swarm.num_agents)])
 	
@@ -287,23 +288,15 @@ def random_walk(swarm,boxes):
 	# Compute (euclidean == cdist) distance between agents
 	agent_distance = cdist(swarm.rob_c, swarm.rob_c)	
 	box_dist = cdist(boxes.box_c,swarm.rob_c)
-#	print("agent distance shape", np.shape(agent_distance))
-#	print("box distance shape",np.shape(box_dist))
 	# Compute vectors between agents
 	proximity_vectors = swarm.rob_c[:,:,np.newaxis]-swarm.rob_c.T[np.newaxis,:,:] 
 	proximity_to_boxes = boxes.box_c[:,:,np.newaxis] - swarm.rob_c.T[np.newaxis,:,:]
-#	print("agent vectors shape",np.shape(proximity_vectors))
-#	print("box vectors shape",np.shape(proximity_to_boxes))
 	
 	F_box = R_box*r*np.exp(-box_dist/r)[:,np.newaxis,:]*proximity_to_boxes/(swarm.num_agents-1)	
-#	F_box = R_box*np.exp(-box_dist*4/(radius/1.2))[:,np.newaxis,:]*proximity_to_boxes/(swarm.num_agents)
 	F_box = np.sum(F_box,axis=0)
-#	print("F_box after sum shape",np.shape(F_box))
 	
 	# Force on agent due to proximity to other agents
 	F_agent = R_rob*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents-1)	
-#	print("F_agent before sum shape",np.shape(F_agent))
-#	print("F_agent after sum shape",np.shape(F_agent))
 	n = boxes.robot_carrier[boxes.seq]
 	if n != -1:
 		for N in range(swarm.num_agents):
@@ -314,13 +307,9 @@ def random_walk(swarm,boxes):
 
 	# Force on agent due to proximity to walls
 	F_wall_avoidance = avoidance(swarm.rob_c, swarm.map)
-#	print("F_wall_avoidance shape",np.shape(F_wall_avoidance))
 
 	# Forces added together
 	F_agent += F_wall_avoidance + F_heading + F_box.T
-#	print("F_agent shape",np.shape(F_agent))
-#	print("-----")
-	#F_agent += F_wall_avoidance + F_heading + F_box
 	F_x = F_agent.T[0] # Force in x
 	F_y = F_agent.T[1] # Force in y 
 	
