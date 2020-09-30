@@ -1,0 +1,1 @@
+{'robot': {'box': 'success rate'}, 'trials no': 1, 'time limit': 10000, 10: {10: 0.2}}

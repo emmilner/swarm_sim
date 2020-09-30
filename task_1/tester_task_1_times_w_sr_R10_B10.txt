@@ -1,0 +1,1 @@
+{'robot': {'box': 'time taken'}, 'trials no': 1, 'time limit': 10000, 10: {10: 10001.0}}
