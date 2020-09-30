@@ -20,7 +20,7 @@ def file_opener(name):
 
 Task = int(sys.argv[1])
 SR_dict = file_opener("total_task"+str(Task)+"_sr_results")
-SR_lines
+
 
 #####
 x = [] #robots
@@ -40,7 +40,7 @@ for i_n in range(len(x)):
 
 
 fig, ax = plt.subplots()
-levs = np.arange(0,1.1,0.5)
+levs = np.arange(0,1.1,0.1)
 cs = ax.contourf(x, y, Z, levs, #cmap = "Greys_r"
 				 cmap = "rainbow")
 cbar = fig.colorbar(cs, ticks = [levs])

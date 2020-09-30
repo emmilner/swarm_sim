@@ -8,17 +8,16 @@ def file_opener(name):
 	file_in.close()
 	return time_dict
 
-SR = {}
-SRs = {}
+time = {}
+times = {}
 for r in range(10,51,2):
-	SRs[r] = {}
+	times[r] = {}
 	
 
 for r in range(20,51,10):
 	for b in range(20,51,10):
-		name = "task_2b_sr_R"+str(r)+"_B"+str(b)
-		SR = file_opener(name)
-		print(SR)
+		name = "task_2b_times_w_sr_R"+str(r)+"_B"+str(b)
+		time = file_opener(name)
 		i = 8
 		j = 8 
 		if r == 20:
@@ -27,8 +26,8 @@ for r in range(20,51,10):
 			j = 10 
 		for r in range(r-i,r+1,2):
 			for b in range(b-j,b+1,2):
-				SRs[r][b] = SR[r][b]
+				times[r][b] = time[r][b]
 
-f = open("total_task2b_sr_results.txt","w+")
-f.write(str(SRs))
+f = open("total_task2_time_results.txt","w+")
+f.write(str(times))
 f.close()

@@ -36,10 +36,10 @@ for b in boxes:
 	lines_for_leg += ax.plot(robots,SR)
 	handles_box.append(b)
 
-leg = Legend(ax, lines_for_leg, handles_box, title = "Number of boxes", loc='lower right', ncol = 1, frameon=True)
+leg = Legend(ax, lines_for_leg, handles_box, title = "Number of boxes", loc='upper left', ncol = 1, frameon=True)
 plt.title("Success rate to complete task "+str(Task))
 plt.xlabel("Number of agents")
-plt.ylabel("Number of boxes requested")
+plt.ylabel("Success rate")
 ax.add_artist(leg)
 plt.show()
 

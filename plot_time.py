@@ -31,10 +31,10 @@ def file_opener(name):
 	return time_dict
 if Task == 1:
 	max_time = 10000
-	time_dict = file_opener("total_task1_sr_results")
+	time_dict = file_opener("total_task2_time_results")
 if Task == 2:
-	max_time = 50001
-	time_dict = file_opener("task_2/task2_beh2/results/task_2b_beh3_times_w_sr_R50_B50")
+	max_time = 10001
+	time_dict = file_opener("total_task2_time_results")
 
 x = [] #robots
 y = [] #boxes
@@ -83,6 +83,7 @@ if norm == True:
 if norm == False:
 	max_out = max_time
 	levs = np.arange(0,max_out+1,max_out/10)
+
 cs = ax.contourf(x, y, Z, 
 				 levs,
 				 #cmap = "Greys_r"
