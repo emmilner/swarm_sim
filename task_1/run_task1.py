@@ -1,7 +1,7 @@
 import task1
 
-trials = 5
-limit = 50000
+trials = 1
+limit = 10000
 dictionary_sr = {}
 dictionary_time = {}
 dictionary_sr["robot"] = {}
@@ -13,10 +13,10 @@ dictionary_time["robot"] = {}
 (dictionary_time["trials no"]) = trials
 (dictionary_time["time limit"]) = limit
 
-for r in range(52,101,2):
+for r in range(10,21,2):
 	dictionary_sr[r] = {}
 	dictionary_time[r] = {}
-	for b in range(10,52,2):
+	for b in range(10,21,2):
 		time = 0 
 		sr = 0.
 		for trial in range(trials):
@@ -31,10 +31,10 @@ for r in range(52,101,2):
 
 print(dictionary_sr)
 print(dictionary_time)
-f = open("task_1_sr_R"+str(r)+"_B"+str(b)+".txt", "w+")
+f = open("tester_task_1_sr_R"+str(r)+"_B"+str(b)+".txt", "w+")
 f.write(str(dictionary_sr))
 f.close()
-h = open("task_1_times_w_sr_R"+str(r)+"_B"+str(b)+".txt", "w+")
+h = open("tester_task_1_times_w_sr_R"+str(r)+"_B"+str(b)+".txt", "w+")
 h.write(str(dictionary_time))
 h.close()
 

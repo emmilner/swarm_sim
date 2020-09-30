@@ -1,20 +1,40 @@
 import task1
-import sys
-import os
-#r_start = int(sys.argv[1]) # num of robots
-#b_start = int(sys.argv[2])
-dictionary = {}
-dictionary["robot"] = {}
-(dictionary["robot"])["box"] = "times"
-for r in range(10,12):
-	dictionary[r] = {}
-	for b in range(10,12):
-		time_total = task1.set_up(5000,r,b)
-	#	time_total = BC_animate.run_programme(20000,r,b)
-		(dictionary[r])[b] = time_total
 
-print(dictionary)
-f = open("results_times_b_"+str(b)+"_r_"+".txt", "w+")
-f.write(str(dictionary))
+trials = 1
+limit = 10000
+dictionary_sr = {}
+dictionary_time = {}
+dictionary_sr["robot"] = {}
+(dictionary_sr["robot"])["box"] = "success rate"
+(dictionary_sr["trials no"]) = trials
+(dictionary_sr["time limit"]) = limit
+dictionary_time["robot"] = {}
+(dictionary_time["robot"])["box"] = "time taken"
+(dictionary_time["trials no"]) = trials
+(dictionary_time["time limit"]) = limit
+
+for r in range(10,21,2):
+	dictionary_sr[r] = {}
+	dictionary_time[r] = {}
+	for b in range(10,21,2):
+		time = 0 
+		sr = 0.
+		for trial in range(trials):
+			result = task1.set_up(limit,r,b)
+			sr += result[0]
+			time += result[1]
+		sr_avg = 0. 
+		if sr > 0.:	
+			sr_avg = sr/trials
+		(dictionary_sr[r])[b] = sr_avg
+		(dictionary_time[r])[b] = time/trials
+
+print(dictionary_sr)
+print(dictionary_time)
+f = open("tester_task_1_sr_R"+str(r)+"_B"+str(b)+".txt", "w+")
+f.write(str(dictionary_sr))
 f.close()
+h = open("tester_task_1_times_w_sr_R"+str(r)+"_B"+str(b)+".txt", "w+")
+h.write(str(dictionary_time))
+h.close()
 

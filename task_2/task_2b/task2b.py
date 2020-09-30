@@ -49,11 +49,11 @@ R_box = 20
 R_wall = 25
 
 pick_up_prob = 100 # prob is <= this 
-drop_off_prob = -1 # prob is <= this
+drop_off_prob = 5 # prob is <= this
 
 counter = 1
 finished = False
-ani = True
+ani = False
 if ani == True:
 	num_agents = 50
 	num_boxes = 50
@@ -111,8 +111,10 @@ class boxes():
 		self.check_b = [False for i in range(self.num_boxes)] # True if box is moving
 		self.robot_carrier = [] # Value at index = box number is the robot number that is currently moving that box
 		self.seq = 0
+		self.box_times = []
 		for i in range(self.num_boxes):
 			self.robot_carrier.append(-1)
+			self.box_times.append(0)
 		self.delivered = [False for i in range(self.num_boxes)]# True if box delivered
 		self.box_c = self.generate_boxes(robots)
 
@@ -219,6 +221,7 @@ class boxes():
 		if self.box_c[self.seq,0] > width-exit_width-radius: # if correct box is in the exit zone 
 				self.box_c[self.seq,0] += exit_width+20 
 				self.drop_box(robots,self.robot_carrier[self.seq],self.seq)
+				self.box_times[self.seq] = counter
 		return (self.delivered, self.seq)
 								
 ## Avoidance behaviour for avoiding the warehouse walls ##		
@@ -356,9 +359,12 @@ def set_up(time,r,b):
 		if finished == False: 
 			box_group.box_iterate(swarm_group)
 		if finished == True:
+			print(box_group.box_times)
 			return (1,counter)
 			exit()
 	sr = 0 
+	print(box_group.box_times)
+
 	for i in range(b):
 		if box_group.delivered[i] == True:
 			sr += 1

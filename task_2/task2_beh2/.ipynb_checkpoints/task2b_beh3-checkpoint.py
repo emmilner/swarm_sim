@@ -53,10 +53,10 @@ drop_off_prob = 5 # prob is <= this
 
 counter = 1
 finished = False
-ani = False
+ani = True
 if ani == True:
 	num_agents = 50
-	num_boxes = 3
+	num_boxes = 50
 	marker_size = width*0.5/20 #diameter
 	
 def convert_to_list(self):

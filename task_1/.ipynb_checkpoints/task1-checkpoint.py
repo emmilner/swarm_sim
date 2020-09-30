@@ -56,10 +56,10 @@ R_wall = 25
 
 counter = 1
 finished = False
-ani = False
+ani = True
 if ani == True:
-	num_agents = 50
-	num_boxes = 50
+	num_agents = 30
+	num_boxes = 15
 	marker_size = width*0.5/20 #diameter
 
 class swarm():
@@ -107,11 +107,12 @@ class boxes():
 		self.radius = box_radius
 		self.check_b = [False for i in range(self.num_boxes)] # True if box is moving
 		self.robot_carrier = [] # Value at index = box number is the robot number that is currently moving that box
+		self.box_times =[]	
 		for i in range(self.num_boxes):
 			self.robot_carrier.append(-1)
+			self.box_times.append(0)
 		self.delivered = [False for i in range(self.num_boxes)]# True if box delivered
 		self.box_c = self.generate_boxes(robots)
-
 		
 	def generate_boxes(self,robots):
 		self.box_c = np.zeros((self.num_boxes,2))
@@ -209,6 +210,7 @@ class boxes():
 					self.delivered[b] = True
 					self.box_c[b,0] += exit_width + 20 
 					self.drop_box(robots,self.robot_carrier[b],b)
+					self.box_times[b] = counter
 		return self.delivered
 								
 ## Avoidance behaviour for avoiding the warehouse walls ##		
@@ -329,14 +331,16 @@ def set_up(time,r,b):
 		if finished == False: 
 			box_group.box_iterate(swarm_group)
 		if finished == True:
+			print(box_group.box_times)
 			return (1,counter)
 			exit()
 	sr = 0 
+	print(box_group.box_times)
 	for i in range(b):
 		if box_group.delivered[i] == True:
 			sr += 1
 	if sr > 0:
-		sr = int(sr/b)
+		sr = float(sr/b)
 	return (sr,counter)
 
 if ani == True: 

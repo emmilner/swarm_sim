@@ -30,24 +30,24 @@ def file_opener(name):
 	file_in.close()
 	return time_dict
 if Task == 1:
-	max_time = 25000
-	time_dict = file_opener("task_1/results/total_time_w_sr_results")
+	max_time = 10000
+	time_dict = file_opener("total_task1_sr_results")
 if Task == 2:
 	max_time = 50001
 	time_dict = file_opener("task_2/task2_beh2/results/task_2b_beh3_times_w_sr_R50_B50")
 
 x = [] #robots
 y = [] #boxes
-for r in range(10,51,5):  ## 10 to 126 (per 5)
+for r in range(10,51,2):  ## 10 to 126 (per 5)
 	x.append(r)
-for b in range(10,51,5):  ## 10 to 101 (per 10)
+for b in range(10,51,2):  ## 10 to 101 (per 10)
 	y.append(b)
 Z = np.full([len(y),len(x)],0.)
 # Normalising results
 maximum = np.full([len(y),1],0.)
 minimum = np.full([len(y),1],0.)
 maximum_onenum = 0 
-minimum_onenum = 50000 
+minimum_onenum = max_time 
 
 for b in range(len(y)):
 	list_max_min = []
@@ -81,7 +81,7 @@ if norm == True:
 	levs = np.arange(0,11,1)
 	levs = levs/10
 if norm == False:
-	max_out = 50000
+	max_out = max_time
 	levs = np.arange(0,max_out+1,max_out/10)
 cs = ax.contourf(x, y, Z, 
 				 levs,
@@ -97,8 +97,8 @@ if norm == True:
 
 if norm == False:
 	cbar.set_label("Time taken (s)")
-	plt.title("Time taken to complete task "+str(Task)+" with behaviour 3")
+	plt.title("Time taken to complete task "+str(Task))
 
-plt.xlabel("Number of agents (every 5)")
-plt.ylabel("Number of boxes requested (every 5)")
+plt.xlabel("Number of agents")
+plt.ylabel("Number of boxes requested")
 plt.show()
