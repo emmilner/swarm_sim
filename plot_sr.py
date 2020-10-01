@@ -44,6 +44,7 @@ levs = np.arange(0,1.1,0.1)
 cs = ax.contourf(x, y, Z, levs, #cmap = "Greys_r"
 				 cmap = "rainbow")
 cbar = fig.colorbar(cs, ticks = [levs])
+cbar.set_label("Success rate")
 plt.title("Success rate for complete task "+str(Task))
 plt.xlabel("Number of agents")
 plt.ylabel("Number of boxes requested")

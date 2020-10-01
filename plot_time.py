@@ -36,10 +36,13 @@ max_time = 10001
 
 x = [] #robots
 y = [] #boxes
-for r in range(10,51,2):  ## 10 to 126 (per 5)
+for r in range(60,101,10):
+#for r in range(10,51,2):  ## 10 to 126 (per 5)
 	x.append(r)
-for b in range(10,51,2):  ## 10 to 101 (per 10)
+#for b in range(10,51,2):  ## 10 to 101 (per 10)
+for b in range(10,51,10):
 	y.append(b)
+
 Z = np.full([len(y),len(x)],0.)
 
 # Normalising results set up 
@@ -64,9 +67,10 @@ if norm == True:
 				
 		#maximum[b] = max(list_max_min)
 		#minimum[b] = min(list_max_min)
-
-for i_n in range(len(x)):
-	for i_b in range(len(y)): #### should this not be just in y?
+print(y)
+print(x)
+for i_b in range(len(y)):
+	for i_n in range(len(x)): #### should this not be just in y?
 		b = y[i_b]
 		n = x[i_n]
 		if time_dict[n][b] == max_time:
@@ -75,12 +79,13 @@ for i_n in range(len(x)):
 			if list_min[i_b] == list_max[i_b]:
 				list_min[i_b] = list_min[i_b] -1 
 			Z[i_b,i_n] = (time_dict[n][b] - list_min[i_b])/(list_max[i_b] - list_min[i_b])
-#			Z[i_b,i_n] = (time_dict[n][b] - minimum[i_b])/(maximum[i_b] - minimum[i_b])
-#		Z[i_b,i_n] = (time_dict[n][b] - minimum_onenum)/(maximum_onenum - minimum_onenum)
+	#		Z[i_b,i_n] = (time_dict[n][b] - minimum[i_b])/(maximum[i_b] - minimum[i_b])
+	#		Z[i_b,i_n] = (time_dict[n][b] - minimum_onenum)/(maximum_onenum - minimum_onenum)
 
 		if norm == False:
 			Z[i_b,i_n] = time_dict[n][b] 
-
+		
+			
 fig, ax = plt.subplots()
 
 if norm == True:
@@ -108,4 +113,5 @@ if norm == False:
 
 plt.xlabel("Number of agents")
 plt.ylabel("Number of boxes requested")
+print(Z)
 plt.show()
