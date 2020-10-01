@@ -23,18 +23,16 @@ if norm == 0:
 if norm == 1:
 	norm = True 
 	print("Data is normalised because your second input is 1. Put 0 for none normalised data")
+	
 def file_opener(name):
 	file_in = open("%s.txt" % name, "r")
 	time_dict = file_in.readline()
 	time_dict = ast.literal_eval(time_dict)
 	file_in.close()
 	return time_dict
-if Task == 1:
-	max_time = 10000
-	time_dict = file_opener("total_task2_time_results")
-if Task == 2:
-	max_time = 10001
-	time_dict = file_opener("total_task2_time_results")
+
+time_dict = file_opener("total_task"+str(Task)+"_time_results")
+max_time = 10001
 
 x = [] #robots
 y = [] #boxes
@@ -43,25 +41,30 @@ for r in range(10,51,2):  ## 10 to 126 (per 5)
 for b in range(10,51,2):  ## 10 to 101 (per 10)
 	y.append(b)
 Z = np.full([len(y),len(x)],0.)
-# Normalising results
-maximum = np.full([len(y),1],0.)
-minimum = np.full([len(y),1],0.)
-maximum_onenum = 0 
-minimum_onenum = max_time 
 
-for b in range(len(y)):
-	list_max_min = []
-	box = y[b]
+# Normalising results set up 
+#maximum = np.full([len(y),1],0.)
+#minimum = np.full([len(y),1],0.)
+#maximum_onenum = 0 
+#minimum_onenum = max_time 
+
+if norm == True:
+	list_max = np.full([len(y),1],0.) 
+	list_min = np.full([len(y),1],max_time)
+	#for b in range(len(y)):
 	for robot in x:
-		list_max_min.append(time_dict[robot][box])
-	
-		if time_dict[robot][box] >= maximum_onenum:
-			maximum_onenum = time_dict[robot][box]
-		if time_dict[robot][box] <= minimum_onenum:
-			minimum_onenum = time_dict[robot][box]
-	maximum[b] = max(list_max_min)
-	minimum[b] = min(list_max_min)
-	
+		for b in range(len(y)):
+			box = y[b]
+		#for robot in x:
+			if time_dict[robot][box] >= list_max[b]:
+				list_max[b] = time_dict[robot][box]
+				
+			if time_dict[robot][box] <= list_min[b]:
+				list_min[b] = time_dict[robot][box]
+				
+		#maximum[b] = max(list_max_min)
+		#minimum[b] = min(list_max_min)
+
 for i_n in range(len(x)):
 	for i_b in range(len(y)): #### should this not be just in y?
 		b = y[i_b]
@@ -69,7 +72,10 @@ for i_n in range(len(x)):
 		if time_dict[n][b] == max_time:
 			time_dict[n][b] = max_time-1
 		if norm == True:
-			Z[i_b,i_n] = (time_dict[n][b] - minimum[i_b])/(maximum[i_b] - minimum[i_b])
+			if list_min[i_b] == list_max[i_b]:
+				list_min[i_b] = list_min[i_b] -1 
+			Z[i_b,i_n] = (time_dict[n][b] - list_min[i_b])/(list_max[i_b] - list_min[i_b])
+#			Z[i_b,i_n] = (time_dict[n][b] - minimum[i_b])/(maximum[i_b] - minimum[i_b])
 #		Z[i_b,i_n] = (time_dict[n][b] - minimum_onenum)/(maximum_onenum - minimum_onenum)
 
 		if norm == False:

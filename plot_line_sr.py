@@ -40,6 +40,7 @@ leg = Legend(ax, lines_for_leg, handles_box, title = "Number of boxes", loc='upp
 plt.title("Success rate to complete task "+str(Task))
 plt.xlabel("Number of agents")
 plt.ylabel("Success rate")
+plt.ylim(0,1.0)
 ax.add_artist(leg)
 plt.show()
 
