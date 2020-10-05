@@ -51,8 +51,8 @@ R_wall = 25
 pick_up_prob = 100 # prob is <= this 
 drop_off_prob = 5 # prob is <= this
 
-#counter = 1
-#finished = False
+counter = 1
+finished = False
 ani = False
 if ani == True:
 	num_agents = 50
@@ -78,7 +78,6 @@ class swarm():
 			self.holding_box.append(-1)
 			self.last_box.append([-1,-1])
 		self.rob_c = self.gen_agents()
-		self.counter = 0 
 
 	def gen_agents(self): # generate the agent's positions 
 		# rob_c is the centre point coordinate of the robot
@@ -99,11 +98,11 @@ class swarm():
 		global warehouse_map # sets the map everywhere
 		random_walk(self,boxes) # the robots move using the random walk function 
 		these_boxes = boxes
-	#	global counter
-	#	global finished
-	#	counter = 1 + counter
-	#	if False not in these_boxes.delivered and finished == False:
-	#		finished = True
+		global counter
+		global finished
+		counter = 1 + counter
+		if False not in these_boxes.delivered and finished == False:
+			finished = True
 			
 class boxes():
 	def __init__(self,number_of_boxes,robots):
@@ -144,13 +143,13 @@ class boxes():
 		robots.holding_box[rob_num] = -1 # the box is assigned to that robot
 		robots.last_box[rob_num][1] = robots.last_box[rob_num][0]
 		robots.last_box[rob_num][0] = box_num
-
+		
 		if box_num == self.seq:
 			self.delivered[box_num] = True
-			self.box_times[box_num] = robots.counter
-			if self.seq < self.num_boxes:
-				self.seq += 1 
-				
+			self.seq += 1
+			if self.seq > self.num_boxes:
+				finished = True
+	
 	def calc_dist(self,robots,r,b,qu):
 		x_diff = robots.rob_c[r,0] - self.box_c[b,0]
 		y_diff = robots.rob_c[r,1] - self.box_c[b,1]
@@ -207,9 +206,11 @@ class boxes():
 			if self.check_b[b] == True:
 				self.box_c[b,0] = robots.rob_c[self.robot_carrier[b],0]
 				self.box_c[b,1] = robots.rob_c[self.robot_carrier[b],1]
-		
-		if self.box_c[self.seq,0] > width-exit_width-radius: # if correct box s in the exit zone 
+				
+		if self.box_c[self.seq,0] > width-exit_width-radius: 
+			# if correct box is in the exit zone 
 			self.box_c[self.seq,0] += exit_width+20 
+			self.box_times[self.seq] = counter
 			self.drop_box(robots,self.robot_carrier[self.seq],self.seq)
 		return (self.delivered, self.seq)
 								
@@ -260,7 +261,7 @@ def avoidance(rob_c,map): # input the agent positions array and the warehouse ma
 	
 ## Movement function with agent-agent avoidance behaviours ## 
 def random_walk(swarm,boxes):
-	swarm.counter += 1
+	 
 	# Add noise to the heading function
 	noise = 0.01*np.random.randint(-50,50,(swarm.num_agents))
 	swarm.heading += noise
@@ -292,20 +293,14 @@ def random_walk(swarm,boxes):
 	
 	# Force on agent due to proximity to other agents
 	F_agent = R_rob*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents-1)	
-	n = boxes.robot_carrier[boxes.seq]
-	if n != -1:
-		for N in range(swarm.num_agents):
-			if N != n:
-				F_agent[n][0][N] = F_agent[n][0][N]*100
-				F_agent[n][1][N] = F_agent[n][1][N]*100
-	
 	F_agent = np.sum(F_agent, axis =0).T # Sum of proximity forces
-
+	
 	# Force on agent due to proximity to walls
 	F_wall_avoidance = avoidance(swarm.rob_c, swarm.map)
 
 	# Forces added together
 	F_agent += F_wall_avoidance + F_heading + F_box.T
+
 	F_x = F_agent.T[0] # Force in x
 	F_y = F_agent.T[1] # Force in y 
 	
@@ -321,10 +316,10 @@ def random_walk(swarm,boxes):
 ##########################################################
 
 def set_up(time,r,b):
-#	global counter
-#	counter = 1
-#	global finished 
-#	finished = False
+	global counter
+	counter = 1
+	global finished 
+	finished = False
 	swarm_group = swarm(r)
 	box_group = boxes(b,swarm_group)
 		
@@ -336,14 +331,14 @@ def set_up(time,r,b):
 	swarm_group.robot_iterate(box_group)
 	box_group.box_iterate(swarm_group)
 	
-	while swarm_group.counter <= time:
-		if False in box_group.delivered: 
+	while counter <= time:
+		if finished == False: 
 			swarm_group.robot_iterate(box_group)
-		if False in box_group.delivered: 
+		if finished == False: 
 			box_group.box_iterate(swarm_group)
-		if False not in box_group.delivered: 
+		if finished == True:
 			print(box_group.box_times)
-			return (1,swarm_group.counter)
+			return (1,counter)
 			exit()
 	sr = 0 
 	print(box_group.box_times)
@@ -353,7 +348,7 @@ def set_up(time,r,b):
 			sr += 1
 	if sr > 0:
 		sr = float(sr/b)
-	return (sr,swarm_group.counter)
+	return (sr,counter)
 
 if ani == True: 
 	swarm = swarm(num_agents)
@@ -391,7 +386,7 @@ if ani == True:
 		seq.set_data([boxes.box_c[boxes.seq,0],[boxes.box_c[boxes.seq,1]]])
 
 		plt.title("Time is "+str(counter)+"s")
-		if False not in boxes.delivered:
+		if finished == True:
 			exit()
 	anim = animation.FuncAnimation(fig, animate, frames=500, interval=0.1)
 	plt.xlabel("Warehouse width (cm)")

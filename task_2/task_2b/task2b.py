@@ -369,7 +369,7 @@ def set_up(time,r,b):
 		if box_group.delivered[i] == True:
 			sr += 1
 	if sr > 0:
-		sr = int(sr/b)
+		sr = float(sr/b)
 	return (sr,counter)
 
 if ani == True: 
