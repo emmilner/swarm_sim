@@ -41,7 +41,7 @@ repulsion_distance = radius/2# Distance at which repulsion is first felt (3)
 
 #num_boxes = 3
 box_radius = radius
-box_range = 2.5*box_radius # range at which a box can be picked up 
+box_range = 2*box_radius # range at which a box can be picked up 
 exit_width = int(0.2*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
 R_rob = 20
@@ -49,11 +49,10 @@ R_box = 20
 R_wall = 25
 
 pick_up_prob = 100 # prob is <= this 
-drop_off_prob = 5 # prob is <= this
 
 ani = False
 if ani == True:
-	num_agents = 50
+	num_agents = 15
 	num_boxes = 50
 	marker_size = width*0.5/20 #diameter
 	
@@ -77,6 +76,7 @@ class swarm():
 			self.last_box.append([-1,-1])
 		self.rob_c = self.gen_agents()
 		self.counter = 0 
+		self.drop_off_prob = -1 
 
 	def gen_agents(self): # generate the agent's positions 
 		# rob_c is the centre point coordinate of the robot
@@ -196,7 +196,7 @@ class boxes():
 		self.check_for_boxes(robots)
 		for b in range(self.num_boxes):
 			prob = np.random.randint(0,100)
-			if self.check_b[b] == True and prob <= drop_off_prob and b != self.seq: 
+			if self.check_b[b] == True and prob <= robots.drop_off_prob and b != self.seq: 
 				self.drop_box(robots,self.robot_carrier[b],b)
 					
 		for b in range(self.num_boxes):
@@ -281,6 +281,9 @@ def random_walk(swarm,boxes):
 	F_box = R_box*r*np.exp(-box_dist/r)[:,np.newaxis,:]*proximity_to_boxes/(swarm.num_agents-1)	
 	F_box = np.sum(F_box,axis=0)
 	
+	F_box[0] = swarm.check_r*F_box[0].T
+	F_box[1] = swarm.check_r*F_box[1].T
+	
 	# Force on agent due to proximity to other agents
 	F_agent = R_rob*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents-1)	
 	F_agent = np.sum(F_agent, axis =0).T # Sum of proximity forces
@@ -303,10 +306,12 @@ def random_walk(swarm,boxes):
 	swarm.rob_c += M	
 ##########################################################
 
-def set_up(time,r,b):
+def set_up(time,r,b,p):
+	
 	swarm_group = swarm(r)
 	box_group = boxes(b,swarm_group)
-		
+	swarm_group.drop_off_prob = p
+	
 	warehouse_map = warehouse.map()
 	warehouse_map.warehouse_map(width,height)
 	warehouse_map.gen()
@@ -321,11 +326,11 @@ def set_up(time,r,b):
 		if False in box_group.delivered: 
 			box_group.box_iterate(swarm_group)
 		if False not in box_group.delivered: 
-			print(box_group.box_times)
+	#		print(box_group.box_times)
 			return (1,swarm_group.counter)
 			exit()
 	sr = 0 
-	print(box_group.box_times)
+	#print(box_group.box_times)
 
 	for i in range(b):
 		if box_group.delivered[i] == True:
@@ -362,14 +367,14 @@ if ani == True:
 	def animate(i):
 		swarm.robot_iterate(boxes)
 		boxes.box_iterate(swarm)
-		
+
 		dot.set_data([swarm.rob_c[n,0] for n in range(num_agents)],[swarm.rob_c[n,1] for n in range(num_agents)])
 	#	for b in range(num_boxes):
 	#		plt.annotate(str(b), (boxes.box_c[b,0], boxes.box_c[b,1]))
 		box.set_data([boxes.box_c[n,0] for n in range(boxes.num_boxes)],[boxes.box_c[n,1] for n in range(boxes.num_boxes)])
 		seq.set_data([boxes.box_c[boxes.seq,0],[boxes.box_c[boxes.seq,1]]])
 
-		plt.title("Time is "+str(counter)+"s")
+		plt.title("Time is "+str(swarm.counter)+"s")
 		if False not in boxes.delivered:
 			exit()
 	anim = animation.FuncAnimation(fig, animate, frames=500, interval=0.1)

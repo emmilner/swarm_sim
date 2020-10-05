@@ -12,17 +12,8 @@ import sys
 import os 
 
 Task = int(sys.argv[1])
-norm = int(sys.argv[2])
 
 #############################################
-
-if norm == 0:
-	norm = False
-	print("Data is NOT normalised because your second input is 0. Put 1 for normalised data.")
-
-if norm == 1:
-	norm = True 
-	print("Data is normalised because your second input is 1. Put 0 for none normalised data")
 	
 def file_opener(name):
 	file_in = open("%s.txt" % name, "r")
@@ -35,6 +26,9 @@ def file_opener(name):
 time_dict = file_opener("500000_task2_times_results")
 max_time = 500000
 
+if Task == 1:
+	print("Cannot show task 1 because file name is wrong in code")
+
 x = [] #robots
 y = [] #boxes
 for r in range(10,51,5):
@@ -46,45 +40,13 @@ for b in range(10,51,5):
 
 Z = np.full([len(y),len(x)],0.)
 
-# Normalising results set up 
-#maximum = np.full([len(y),1],0.)
-#minimum = np.full([len(y),1],0.)
-#maximum_onenum = 0 
-#minimum_onenum = max_time 
-
-if norm == True:
-	list_max = np.full([len(y),1],0.) 
-	list_min = np.full([len(y),1],max_time)
-	#for b in range(len(y)):
-	for robot in x:
-		for b in range(len(y)):
-			box = y[b]
-		#for robot in x:
-			if time_dict[robot][box] >= list_max[b]:
-				list_max[b] = time_dict[robot][box]
-				
-			if time_dict[robot][box] <= list_min[b]:
-				list_min[b] = time_dict[robot][box]
-				
-		#maximum[b] = max(list_max_min)
-		#minimum[b] = min(list_max_min)
-print(y)
-print(x)
 for i_b in range(len(y)):
 	for i_n in range(len(x)): #### should this not be just in y?
 		b = y[i_b]
 		n = x[i_n]
 		if time_dict[n][b] == max_time:
 			time_dict[n][b] = max_time-1
-		if norm == True:
-			if list_min[i_b] == list_max[i_b]:
-				list_min[i_b] = list_min[i_b] -1 
-			Z[i_b,i_n] = (time_dict[n][b] - list_min[i_b])/(list_max[i_b] - list_min[i_b])
-	#		Z[i_b,i_n] = (time_dict[n][b] - minimum[i_b])/(maximum[i_b] - minimum[i_b])
-	#		Z[i_b,i_n] = (time_dict[n][b] - minimum_onenum)/(maximum_onenum - minimum_onenum)
-
-		if norm == False:
-			Z[i_b,i_n] = time_dict[n][b] 
+		Z[i_b,i_n] = time_dict[n][b] 
 		
 			
 fig, ax = plt.subplots()
