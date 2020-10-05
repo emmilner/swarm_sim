@@ -11,42 +11,36 @@ def file_opener(name):
 time = {}
 times = {}
 
-for R in range(10,101,10):
+for R in range(10,51,5):
 	times[R] = {}
 
-name = "new_task2_sr_results"
+name = "task_2/task_2b/results/500000_task_2b_times_w_sr_R25_B25"
 time = file_opener(name)
-for R in range(10,51,10):
-	for B in range(10,51,10):
+for R in range(10,26,5):
+	for B in range(10,26,5):
 		times[R][B] = time[R][B]
 
-R = 100 
-b = 50 
-name = "task_2/task_2b/results/task_2b_sr_R"+str(R)+"_B"+str(b)
-for R in range(60,101,10):
-	for B in range(10,51,10):
+name = "task_2/task_2b/results/500000_task_2b_times_w_sr_R50_B25"
+for R in range(30,51,5):
+	for B in range(10,26,5):
 		time = file_opener(name)
 		times[R][B] = time[R][B]
 
-b = 100 
-for R in range(50,101,50):
-	name = "task_2/task_2b/results/task_2b_sr_R"+str(R)+"_B"+str(b)
-	for B in range(60,101,10):
-		if R == 50:
-			for r in range(10,51,10):
-				time = file_opener(name)
-				times[r][B] = time[r][B]
-b = 100 
-R = 100
-name = "task_2/task_2b/results/task_2b_sr_R"+str(R)+"_B"+str(b)
-for B in range(60,101,10):
-	for r in range(60,101,10):
+name = "task_2/task_2b/results/500000_task_2b_times_w_sr_R50_B50"
+for R in range(30,51,5):
+	for B in range(30,51,5):
 		time = file_opener(name)
-		times[r][B] = time[r][B]
-
+		times[R][B] = time[R][B]
+		
+		
+name = "task_2/task_2b/results/500000_task_2b_times_w_sr_R25_B50"
+for R in range(10,26,5):
+	for B in range(30,51,5):
+		time = file_opener(name)
+		times[R][B] = time[R][B]
 
 print(times)
 
-f = open("total_task2_sr_results.txt","w+")
+f = open("500000_task2_times_results.txt","w+")
 f.write(str(times))
 f.close()

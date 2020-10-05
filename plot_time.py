@@ -31,16 +31,17 @@ def file_opener(name):
 	file_in.close()
 	return time_dict
 
-time_dict = file_opener("new_task"+str(Task)+"_time_results")
-max_time = 10001
+#time_dict = file_opener("new_task"+str(Task)+"_time_results")
+time_dict = file_opener("500000_task2_times_results")
+max_time = 500000
 
 x = [] #robots
 y = [] #boxes
-for r in range(10,51,2):
+for r in range(10,51,5):
 #for r in range(10,51,2):  ## 10 to 126 (per 5)
 	x.append(r)
 #for b in range(10,51,2):  ## 10 to 101 (per 10)
-for b in range(10,51,2):
+for b in range(10,51,5):
 	y.append(b)
 
 Z = np.full([len(y),len(x)],0.)

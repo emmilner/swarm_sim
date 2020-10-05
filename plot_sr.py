@@ -19,15 +19,15 @@ def file_opener(name):
 	return sr_dict
 
 Task = int(sys.argv[1])
-SR_dict = file_opener("new_task"+str(Task)+"_sr_results")
+SR_dict = file_opener("500000_task2_sr_results")
 
 
 #####
 x = [] #robots
 y = [] #boxes
-for r in range(10,51,2):  ## 10 to 126 (per 5)
+for r in range(10,51,5):  ## 10 to 126 (per 5)
 	x.append(r)
-for b in range(10,51,2):  ## 10 to 101 (per 10)
+for b in range(10,51,5):  ## 10 to 101 (per 10)
 	y.append(b)
 Z = np.full([len(y),len(x)],0.0)
 
