@@ -99,11 +99,6 @@ class swarm():
 		global warehouse_map # sets the map everywhere
 		random_walk(self,boxes) # the robots move using the random walk function 
 		these_boxes = boxes
-	#	global counter
-	#	global finished
-	#	counter = 1 + counter
-	#	if False not in these_boxes.delivered and finished == False:
-	#		finished = True
 			
 class boxes():
 	def __init__(self,number_of_boxes,robots):
@@ -118,7 +113,6 @@ class boxes():
 			self.box_times.append(0)
 		self.delivered = [False for i in range(self.num_boxes)]# True if box delivered
 		self.box_c = self.generate_boxes(robots)
-
 		
 	def generate_boxes(self,robots):
 		self.box_c = np.zeros((self.num_boxes,2))
@@ -321,10 +315,6 @@ def random_walk(swarm,boxes):
 ##########################################################
 
 def set_up(time,r,b):
-#	global counter
-#	counter = 1
-#	global finished 
-#	finished = False
 	swarm_group = swarm(r)
 	box_group = boxes(b,swarm_group)
 		
