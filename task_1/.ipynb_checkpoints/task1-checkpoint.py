@@ -56,7 +56,7 @@ R_wall = 25
 
 counter = 1
 finished = False
-ani = False
+ani = True
 if ani == True:
 	num_agents = 10
 	num_boxes = 50
@@ -333,6 +333,7 @@ def set_up(time,r,b):
 			swarm_group.robot_iterate(box_group)
 		if finished == False: 
 			box_group.box_iterate(swarm_group)
+			
 		if finished == True:
 			print(box_group.box_times)
 			return (1,counter)

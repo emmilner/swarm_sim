@@ -50,9 +50,9 @@ R_wall = 25
 
 pick_up_prob = 100 # prob is <= this 
 
-ani = False
+ani = True
 if ani == True:
-	num_agents = 15
+	num_agents = 50
 	num_boxes = 50
 	marker_size = width*0.5/20 #diameter
 	
@@ -76,7 +76,7 @@ class swarm():
 			self.last_box.append([-1,-1])
 		self.rob_c = self.gen_agents()
 		self.counter = 0 
-		self.drop_off_prob = -1 
+		self.drop_off_prob = 4
 
 	def gen_agents(self): # generate the agent's positions 
 		# rob_c is the centre point coordinate of the robot
@@ -132,8 +132,6 @@ class boxes():
 				
 
 	def drop_box(self,robots,rob_num,box_num):
-	#	self.bx[box_num] = robots.rob_c[self.robot_carrier[box_num],0]
-	#	self.by[box_num] = robots.rob_c[self.robot_carrier[box_num],1]
 		self.check_b[box_num] = False # the box is now picked up
 		robots.check_r[rob_num] = False # the robot now has a box
 		self.robot_carrier[box_num] = -1 # the robot is assigned to that box
@@ -199,7 +197,7 @@ class boxes():
 			if self.check_b[b] == True and prob <= robots.drop_off_prob and b != self.seq: 
 				self.drop_box(robots,self.robot_carrier[b],b)
 					
-		for b in range(self.num_boxes):
+		#for b in range(self.num_boxes):
 			if self.check_b[b] == True:
 				self.box_c[b,0] = robots.rob_c[self.robot_carrier[b],0]
 				self.box_c[b,1] = robots.rob_c[self.robot_carrier[b],1]

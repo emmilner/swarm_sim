@@ -41,7 +41,7 @@ repulsion_distance = radius/2# Distance at which repulsion is first felt (3)
 
 #num_boxes = 3
 box_radius = radius
-box_range = 2.5*box_radius # range at which a box can be picked up 
+box_range = 2*box_radius # range at which a box can be picked up 
 exit_width = int(0.2*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
 R_rob = 20
@@ -49,7 +49,7 @@ R_box = 20
 R_wall = 25
 
 pick_up_prob = 100 # prob is <= this 
-drop_off_prob = 5 # prob is <= this
+drop_off_prob = 4 # prob is <= this
 
 #counter = 1
 #finished = False
@@ -270,19 +270,15 @@ def random_walk(swarm,boxes):
 	# Compute (euclidean == cdist) distance between agents
 	agent_distance = cdist(swarm.rob_c, swarm.rob_c)	
 	box_dist = cdist(boxes.box_c,swarm.rob_c)
-#	print("agent distance shape", np.shape(agent_distance))
-#	print("box distance shape",np.shape(box_dist))
 	# Compute vectors between agents
 	proximity_vectors = swarm.rob_c[:,:,np.newaxis]-swarm.rob_c.T[np.newaxis,:,:] 
 	proximity_to_boxes = boxes.box_c[:,:,np.newaxis] - swarm.rob_c.T[np.newaxis,:,:]
-#	print("agent vectors shape",np.shape(proximity_vectors))
-#	print("box vectors shape",np.shape(proximity_to_boxes))
-	
+
 	F_box = R_box*r*np.exp(-box_dist/r)[:,np.newaxis,:]*proximity_to_boxes/(swarm.num_agents-1)	
-#	print("F_box before sum shape",np.shape(F_box))
-#	F_box = R_box*np.exp(-box_dist*4/(radius/1.2))[:,np.newaxis,:]*proximity_to_boxes/(swarm.num_agents)
 	F_box = np.sum(F_box,axis=0)
-#	print("F_box after sum shape",np.shape(F_box))
+	
+	F_box[0] = swarm.check_r*F_box[0].T
+	F_box[1] = swarm.check_r*F_box[1].T
 	
 	# Force on agent due to proximity to other agents
 	F_agent = R_rob*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents-1)	
@@ -292,6 +288,9 @@ def random_walk(swarm,boxes):
 			if N != n:
 				F_agent[n][0][N] = F_agent[n][0][N]*100
 				F_agent[n][1][N] = F_agent[n][1][N]*100
+			if N == n: 
+				F_agent[N][0][n] = 0 
+				F_agent[N][1][n] = 0
 	
 	F_agent = np.sum(F_agent, axis =0).T # Sum of proximity forces
 
@@ -365,11 +364,18 @@ if ani == True:
 	
 	box, = ax.plot([boxes.box_c[i,0] for i in range(boxes.num_boxes)],[boxes.box_c[i,1] for i in range(boxes.num_boxes)], 'rs', markersize = marker_size-5)
 	seq, = ax.plot([boxes.box_c[0,0]],[boxes.box_c[0,1]],'ks',markersize = marker_size-5)
+	line, = ax.plot([], [], lw=3)
 
 	#cir, = ax.plot([radius,radius*3,radius*5,radius*7,10,10,10,10],[10,10,10,10,radius,radius*3,radius*5,radius*7],'ko',markersize = marker_size)
 	
 	plt.axis('square')
 	plt.axis([0,width,0,height])
+	x = []
+	y = []
+	def init():
+		line.set_data([], [])
+		return line,
+	
 	def animate(i):
 		swarm.robot_iterate(boxes)
 		boxes.box_iterate(swarm)
@@ -379,8 +385,11 @@ if ani == True:
 	#		plt.annotate(str(b), (boxes.box_c[b,0], boxes.box_c[b,1]))
 		box.set_data([boxes.box_c[n,0] for n in range(boxes.num_boxes)],[boxes.box_c[n,1] for n in range(boxes.num_boxes)])
 		seq.set_data([boxes.box_c[boxes.seq,0],[boxes.box_c[boxes.seq,1]]])
-
-		plt.title("Time is "+str(counter)+"s")
+		if boxes.robot_carrier[boxes.seq] != -1:
+			x.append(swarm.rob_c[boxes.robot_carrier[boxes.seq],0])
+			y.append(swarm.rob_c[boxes.robot_carrier[boxes.seq],1])
+			line.set_data(x, y)
+		plt.title("Time is "+str(swarm.counter)+"s")
 		if False not in boxes.delivered:
 			exit()
 	anim = animation.FuncAnimation(fig, animate, frames=500, interval=0.1)

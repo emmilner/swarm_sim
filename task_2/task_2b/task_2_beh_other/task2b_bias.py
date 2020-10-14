@@ -41,7 +41,7 @@ repulsion_distance = radius/2# Distance at which repulsion is first felt (3)
 
 #num_boxes = 3
 box_radius = radius
-box_range = 2.5*box_radius # range at which a box can be picked up 
+box_range = 2*box_radius # range at which a box can be picked up 
 exit_width = int(0.2*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
 R_rob = 20
@@ -49,7 +49,7 @@ R_box = 20
 R_wall = 25
 
 pick_up_prob = 100 # prob is <= this 
-drop_off_prob = 5 # prob is <= this
+drop_off_prob = 4 # prob is <= this
 
 #counter = 1
 #finished = False
@@ -287,6 +287,9 @@ def random_walk(swarm,boxes):
 
 	F_box = R_box*r*np.exp(-box_dist/r)[:,np.newaxis,:]*proximity_to_boxes/(swarm.num_agents-1)	
 	F_box = np.sum(F_box,axis=0)
+	
+	F_box[0] = swarm.check_r*F_box[0].T
+	F_box[1] = swarm.check_r*F_box[1].T
 	
 	# Force on agent due to proximity to other agents
 	F_agent = R_rob*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents-1)	
