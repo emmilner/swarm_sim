@@ -23,25 +23,26 @@ def file_opener(name):
 	return time_dict
 
 #time_dict = file_opener("task_2_total_results_time")
-time_dict = file_opener("new_total_task"+str(Task)+"_time_results")
+#time_dict = file_opener("new_total_task"+str(Task)+"_time_results")
 #time_dict = file_opener("task_2_disp_bias_total_results_time")
 #time_dict = file_opener("new_total_task2_bias_time_results")
 #time_dict = file_opener("total_disp_time")
+time_dict = file_opener("task1_v_time")
 #max_time = 50000
 #max_time = 100001
 #max_time = 15001
-max_time = 10000
-min_time = 10000
+#max_time = 10000
+#min_time = 0
 
 sr = file_opener("new_total_task2_disp_bias_sr_results")
 
 x = [] #robots
 y = [] #boxes
-for r in range(10,51,2):
+for r in range(10,51,1):
 #for r in range(10,51,2):  ## 10 to 126 (per 5)
 	x.append(r)
 #for b in range(10,51,2):  ## 10 to 101 (per 10)
-for b in range(10,51,2):
+for b in range(10,51,1):
 	y.append(b)
 
 Z = np.full([len(y),len(x)],0.)
@@ -55,14 +56,14 @@ for i_b in range(len(y)):
 		#if sr[n][b] == 1.0:
 			#if time_dict[n][b] == max_time:
 			#	time_dict[n][b] = max_time-1
-		if time_dict[n][b] < min_time:
-			min_time = time_dict[n][b]
-		if time_dict[n][b] == max_time:
-			time_dict[n][b] == max_time+1
-		if time_dict[n][b] >= max_time:
-			#time_dict[n][b] = max_time+1
-			max_time = time_dict[n][b]
-			print(max_time)
+	#	if time_dict[n][b] < min_time:
+	#		min_time = time_dict[n][b]
+	#	if time_dict[n][b] == max_time:
+	#		time_dict[n][b] == max_time+1
+	#	if time_dict[n][b] >= max_time:
+	#		#time_dict[n][b] = max_time+1
+	##		max_time = time_dict[n][b]
+	#		print(max_time)
 			#print(time_dict[n][b])
 			#time_dict[n][b] = 10001
 			#max_time = 10001
@@ -70,12 +71,12 @@ for i_b in range(len(y)):
 		
 			
 fig, ax = plt.subplots()
-max_out = 10000
-print(min_time)
-print(max_time)
-#levs = np.arange(0,10000+1001,1000)
-min_time = 3500
-levs = np.arange(min_time,max_out+1+max_out/5, max_out/5)
+#max_out = 10000
+#print(min_time)
+#print(max_time)
+levs = np.arange(0,10000+1001,1000)
+#min_time = 3500
+#levs = np.arange(min_time,max_out+1+max_out/5, max_out/5)
 #levs = np.arange(0,max_out+((max_out-1)/10)+1,(max_out-1)/10)
 #levs = np.arange(0,187502,1000)
 #levs = np.arange(2500,max_out+2000,1500)#max_out/10)

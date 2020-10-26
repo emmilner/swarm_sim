@@ -13,10 +13,10 @@ dictionary_time["robot"] = {}
 (dictionary_time["trials no"]) = trials
 (dictionary_time["time limit"]) = limit
 
-for r in range(10,21,2):
+for r in range(50,55,10):
 	dictionary_sr[r] = {}
 	dictionary_time[r] = {}
-	for b in range(10,21,2):
+	for b in range(50,55,10):
 		time = 0 
 		sr = 0.
 		for trial in range(trials):

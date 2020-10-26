@@ -56,7 +56,7 @@ R_wall = 25
 
 counter = 1
 finished = False
-ani = True
+ani = False
 if ani == True:
 	num_agents = 10
 	num_boxes = 50

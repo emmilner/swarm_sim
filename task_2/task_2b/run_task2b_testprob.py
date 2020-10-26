@@ -1,15 +1,15 @@
-import task2b
+import task2_v
 
-trials = 5
-limit = 1000
+trials = 10
+limit = 10000
 result_p = []
 b = 50
 r = 15
-for p in range(0,10,1):
+for p in range(0,50,1):
 	result_p.append(-1)
 	sr = 0.
 	for trial in range(trials):
-		result = task2b.set_up(limit,r,b,p)
+		result = task2_v.set_up(limit,r,b,p)
 		sr += result[0]
 	sr_avg = 0. 
 	if sr > 0.:	
