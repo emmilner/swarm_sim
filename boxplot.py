@@ -62,14 +62,14 @@ bp1 = ax.boxplot(times,patch_artist= True,boxprops=dict(facecolor=c, color=c),
             flierprops=dict(color=c, markeredgecolor=c),
             )
 
-times = get_times(time3)
+times = get_times(time2)
 c = "blue"
 bp2 = ax.boxplot(times,patch_artist= True,boxprops=dict(facecolor=c, color=c),
             capprops=dict(color=c),
             whiskerprops=dict(color=c),
             flierprops=dict(color=c, markeredgecolor=c),
             )
-times = get_times(time2)
+times = get_times(time3)
 c = "magenta"
 bp3 = ax.boxplot(times,patch_artist= True,boxprops=dict(facecolor=c, color=c),
             capprops=dict(color=c),
@@ -80,17 +80,17 @@ times = get_times(time4)
 c = "green"
 bp4 = ax.boxplot(times,patch_artist= True,boxprops=dict(facecolor=c, color=c),
             capprops=dict(color=c),
-            whiskerprops=dict(color=c),
+           whiskerprops=dict(color=c),
             flierprops=dict(color=c, markeredgecolor=c),
             )
 matplotlib.pyplot.boxplot(times)
 ax.legend([bp1["boxes"][0], 
-		   bp2["boxes"][0], 
+		  bp2["boxes"][0], 
 		   bp3["boxes"][0],
 		   bp4["boxes"][0]
 		  ], ['Unordered without bias', 
+			  'Unordered without bias',
 			  'Ordered without bias',
-			  'Unordered with bias',
 			  'Ordered with bias',
 			 ], loc='upper right',fontsize = 20 )
 ax.set_xlabel("Number of robots",fontsize = 20)
@@ -103,8 +103,8 @@ plt.xticks(pos,robots)
 plt.xticks(fontsize = 12)
 plt.yticks(fontsize = 15)
 
-plt.title("Comparing time for the two tasks with and without bias",fontsize = 20)
-plt.ylim(0,60000)
+plt.title("Time taken to deliver all the boxes",fontsize = 20)
+plt.ylim(0,70000)
 #times = NormalizeData(times)
 #max_time = 1
 #min_time = 0 

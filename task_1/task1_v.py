@@ -50,10 +50,10 @@ R_wall = 25
 
 pick_up_prob = 100 # prob is <= this 
 
-ani = True
+ani = False
 if ani == True:
-	num_agents = 15
-	num_boxes = 35
+	num_agents = 50
+	num_boxes = 50
 	marker_size = width*0.5/20 #diameter
 	
 	
@@ -63,7 +63,7 @@ class swarm():
 		self.num_agents = num_agents
 		self.check_r = np.ones(self.num_agents)
 		self.heading = 0.0314*np.random.randint(-100,100,self.num_agents)
-		self.rob_c = np.random.randint(box_radius*2,width-box_radius-exit_width,(self.num_agents,2))
+		self.rob_c = np.random.randint(box_radius*2,width-box_radius-exit_width,(self.num_agents,2))		
 		self.counter = 0 
 		self.rob_d = np.zeros((self.num_agents,2))
 	
@@ -75,7 +75,6 @@ class swarm():
 		cf_box = qu_close_box*boxes.check_b
 		cf_rob = qu_close_rob*self.check_r
 
-		# needs to be a loop in case two robots are close to the same box
 		for b in range(boxes.num_boxes):		
 			if cf_box[b] == True and cf_rob[mins[b]] == True:
 				self.check_r[mins[b]] = 0 
@@ -85,8 +84,11 @@ class swarm():
 
 		random_walk(self,boxes) # the robots move using the random walk function 
 		self.rob_c = self.rob_c + self.rob_d
-		positions = np.insert(self.rob_d,self.num_agents,[0, 0],axis = 0 )
-		boxes.box_d = positions[boxes.robot_carrier]		
+		
+		for b in range(boxes.num_boxes):
+			if boxes.check_b[b] == 0:
+				boxes.box_d[b] = self.rob_d[boxes.robot_carrier[b]]
+		
 		boxes.box_d = (boxes.box_d.T*boxes.gone).T
 		boxes.box_c = boxes.box_c + boxes.box_d
 		beyond_b = boxes.box_c.T[0] > width - exit_width - radius
@@ -104,11 +106,11 @@ class boxes():
 		self.num_boxes = number_of_boxes
 		self.radius = box_radius
 		self.check_b = np.ones(self.num_boxes)
+		self.robot_carrier = np.full((self.num_boxes),-1) # Value at index = box number is the robot number that is currently moving that box
 		self.delivered = 0
 		self.box_c = np.random.randint(box_radius*2,width-box_radius-exit_width,(self.num_boxes,2))
 		self.box_d = np.zeros((self.num_boxes,2))
 		self.gone = np.ones(self.num_boxes)
-		self.robot_carrier = np.full(self.num_boxes,robots.num_agents)
 							
 ## Avoidance behaviour for avoiding the warehouse walls ##		
 def avoidance(rob_c,map): # input the agent positions array and the warehouse map 
@@ -165,8 +167,6 @@ def random_walk(swarm,boxes):
 	# Force for movement according to new chosen heading 
 	heading_x = 1*np.cos(swarm.heading) # move in x 
 	heading_y = 1*np.sin(swarm.heading) # move in y
-	
-	
 	F_heading = -np.array([[heading_x[n], heading_y[n]] for n in range(0, swarm.num_agents)])
 	
 	# Agent-agent avoidance
