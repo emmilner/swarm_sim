@@ -13,11 +13,6 @@ diameter of agent is 250 mm
 width of warehouse is 5m
 height (depth) of warehouse is 5m 
 '''
-# Still to do
-	# Consider other exit zone options e.g. square in the centre (so that wall avoidance doesn't come in)
-	# if delivered change the number of boxes.num_boxes so don't have to keep plotting them?
-	# avoid boxes if you already have a box 
-
 import numpy as np 
 import math 
 import random 
@@ -100,7 +95,7 @@ class swarm():
 		# multiply deviation by the gone states so if the box has been delivered (ie gone = 0 ), then its deviation won't move
 		boxes.box_c = boxes.box_c + (boxes.box_d.T*boxes.gone).T # new box centres 
 		
-		boxes.beyond_b = boxes.box_c.T[0] > width - exit_width - radius # beyond_b = 1 if box centre is in the delivery area (including those already delivered)
+		boxes.beyond_b[boxes.seq] = boxes.box_c.T[0,boxes.seq] > width - exit_width - radius # beyond_b = 1 if box centre is in the delivery area (including those already delivered)
 		self.beyond_r = self.rob_c.T[0] > width - exit_width - radius # beyond_r = 1 if robot centre is in the delivery area
 		
 		boxes.box_c.T[0] = boxes.box_c.T[0] + (boxes.gone*boxes.beyond_b*200)# if the box JUST been delivered (gone is not yet 0) AND it is in the delivery area (beyong_b = 1) THEN add 200 to the x value to remove it from the warehouse
@@ -232,6 +227,7 @@ class data:
 		self.items = boxes(self.num_boxes,self.robots)
 		self.time = limit
 		self.anim = anim
+		self.counter = 0 
 
 		warehouse_map = warehouse.map()
 		warehouse_map.warehouse_map(width,height)
@@ -246,13 +242,17 @@ class data:
 			while self.robots.counter <= self.time:
 				self.robots.iterate(self.items)
 				if self.items.delivered == self.items.num_boxes:
-					print(1,self.robots.counter)
-					exit()
-			sr = self.items.delivered
-			if sr > 0:
-				sr = float(sr/self.items.num_boxes)
-			print(self.items.delivered,"of",self.items.num_boxes,"collected =",sr*100,"%")
-			print("in",self.robots.counter,"seconds")
+					self.counter = self.robots.counter
+					return self.counter
+#					print(1,self.robots.counter)
+#					exit()
+#			sr = self.items.delivered
+#			if sr > 0:
+#				sr = float(sr/self.items.num_boxes)
+			#print(self.items.delivered,"of",self.items.num_boxes,"collected =",sr*100,"%")
+			#print("in",self.robots.counter,"seconds")
+			self.counter = self.robots.counter
+			return self.counter
 		if self.anim == True:
 			self.ani()
 			

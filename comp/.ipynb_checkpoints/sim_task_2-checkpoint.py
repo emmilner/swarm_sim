@@ -20,6 +20,7 @@ height (depth) of warehouse is 5m
 
 import numpy as np 
 import math 
+import pandas as pd
 import random 
 from matplotlib import pyplot as plt
 from matplotlib import animation  
@@ -78,19 +79,17 @@ class swarm():
 	def iterate(self,boxes):  # moves the robot and box positions forward in one time step
 		dist = cdist(boxes.box_c, self.rob_c) # calculates the euclidean distance from every robot to every box (centres)
 		qu_close_box = np.min(dist,1) < box_range # if the minimum distance box-robot is less than the pick up sensory range, then qu_close_box = 1
-		qu_close_rob = np.min(dist,0) < box_range
 		mins = np.argmin(dist,1)	
-		cf_box = qu_close_box*boxes.check_b
-		cf_rob = qu_close_rob*self.check_r
 		
 		# needs to be a loop (rather than vectorised) in case two robots are close to the same box
 		for b in range(boxes.num_boxes):		
 			# if box b is close to a robot (ID = mins[b]) and it is free and it is not one of the previous 2 boxes that robot has picked up THEN pick up the box
-			if cf_box[b] == True and cf_rob[mins[b]] == True and self.last_box[mins[b],0] != b and self.last_box[mins[b],1] != b:
+			if boxes.check_b[b] == 1 and self.check_r[mins[b]] == 1 and qu_close_box[b] == 1 and self.last_box[mins[b],0] != b and self.last_box[mins[b],1] != b: # if the box is close to a robot and free AND the robot that is closest to box b is also free:
+
 				self.check_r[mins[b]] = 0 # change robot state to 0 (not free, has a box)
 				boxes.check_b[b] = 0 # change box state to 0 (not free, on a robot)
 				boxes.box_c[b] = self.rob_c[mins[b]] # change the box centre so it is aligned with its robot carrier's centre
-				boxes.robot_carrier[b] = mins[b] # set the robot_carrier for box b to that robot ID
+				boxes.robot_carrier[b] = mins[b] # set the robot_carrier for box b to that robot IDz
 
 		random_walk(self,boxes) # the robots move using the random walk function which generates a new deviation (rob_d)
 		self.rob_c = self.rob_c + self.rob_d # robots centres change as they move
@@ -100,7 +99,7 @@ class swarm():
 		# multiply deviation by the gone states so if the box has been delivered (ie gone = 0 ), then its deviation won't move
 		boxes.box_c = boxes.box_c + (boxes.box_d.T*boxes.gone).T # new box centres 
 		
-		boxes.beyond_b = boxes.box_c.T[0] > width - exit_width - radius # beyond_b = 1 if box centre is in the delivery area (including those already delivered)
+		boxes.beyond_b[boxes.seq] = boxes.box_c.T[0,boxes.seq] > width - exit_width - radius # beyond_b = 1 if box centre is in the delivery area (including those already delivered)
 		self.beyond_r = self.rob_c.T[0] > width - exit_width - radius # beyond_r = 1 if robot centre is in the delivery area
 		
 		boxes.box_c.T[0] = boxes.box_c.T[0] + (boxes.gone*boxes.beyond_b*200)# if the box JUST been delivered (gone is not yet 0) AND it is in the delivery area (beyong_b = 1) THEN add 200 to the x value to remove it from the warehouse
@@ -230,6 +229,7 @@ class data:
 		self.items = boxes(self.num_boxes,self.robots)
 		self.time = limit
 		self.anim = anim
+		self.counter = 0 
 
 		warehouse_map = warehouse.map()
 		warehouse_map.warehouse_map(width,height)
@@ -244,13 +244,17 @@ class data:
 			while self.robots.counter <= self.time:
 				self.robots.iterate(self.items)
 				if self.items.delivered == self.items.num_boxes:
-					print(1,self.robots.counter)
-					exit()
-			sr = self.items.delivered
-			if sr > 0:
-				sr = float(sr/self.items.num_boxes)
-			print(self.items.delivered,"of",self.items.num_boxes,"collected =",sr*100,"%")
-			print("in",self.robots.counter,"seconds")
+					#print(1,self.robots.counter)
+					#exit()
+					self.counter = self.robots.counter
+					return self.counter
+			#sr = self.items.delivered
+			#if sr > 0:
+			#	sr = float(sr/self.items.num_boxes)
+			#print(self.items.delivered,"of",self.items.num_boxes,"collected =",sr*100,"%")
+			#print("in",self.robots.counter,"second
+			self.counter = self.robots.counter
+			return self.counter
 		if self.anim == True:
 			self.ani()
 			
