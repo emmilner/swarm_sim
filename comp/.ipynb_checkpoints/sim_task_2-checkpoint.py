@@ -82,9 +82,12 @@ class swarm():
 		mins = np.argmin(dist,1)	
 		
 		# needs to be a loop (rather than vectorised) in case two robots are close to the same box
-		for b in range(boxes.num_boxes):		
+		checkb = boxes.check_b*qu_close_box
+		box_n = np.argwhere(checkb==1)
+		
+		for b in box_n:		
 			# if box b is close to a robot (ID = mins[b]) and it is free and it is not one of the previous 2 boxes that robot has picked up THEN pick up the box
-			if boxes.check_b[b] == 1 and self.check_r[mins[b]] == 1 and qu_close_box[b] == 1 and self.last_box[mins[b],0] != b and self.last_box[mins[b],1] != b: # if the box is close to a robot and free AND the robot that is closest to box b is also free:
+			if self.check_r[mins[b]] == 1 and self.last_box[mins[b],0] != b and self.last_box[mins[b],1] != b: # if the box is close to a robot and free AND the robot that is closest to box b is also free:
 
 				self.check_r[mins[b]] = 0 # change robot state to 0 (not free, has a box)
 				boxes.check_b[b] = 0 # change box state to 0 (not free, on a robot)
@@ -113,16 +116,25 @@ class swarm():
 		prob[boxes.seq] = 0 # the probabilty of dropping the correct sequenced box is always 0, don't drop
 		
 		prob_check_b = boxes.check_b == 0 # = 1 if the box is being carried
-		for b in range(boxes.num_boxes):
-			if prob_check_b[b]*prob[b] == 1: # if box is being carried and random number says to drop box THEN drop the box
-				self.last_box[boxes.robot_carrier[b],1] = self.last_box[boxes.robot_carrier[b],0] # record the last box dropped as the second last box dropped
-				self.last_box[boxes.robot_carrier[b],0] = b # record this box as the last box dropped
-				self.check_r[boxes.robot_carrier[b]] = 1 # drop box
+		P = prob_check_b*prob == 1
+		box_n = np.argwhere(P==1)
+		rob_n = boxes.robot_carrier[box_n]
+		self.last_box[rob_n,1] = self.last_box[rob_n,0]
+		self.last_box[rob_n,0] = box_n
+		self.check_r[rob_n] = 1 
+		
+		#for b in range(boxes.num_boxes):
+		#	if prob_check_b[b]*prob[b] == 1: # if box is being carried and random number says to drop box THEN drop the box
+		#		self.last_box[boxes.robot_carrier[b],1] = self.last_box[boxes.robot_carrier[b],0] # record the last box dropped as the second last box dropped
+		#		self.last_box[boxes.robot_carrier[b],0] = b # record this box as the last box dropped
+		#		self.check_r[boxes.robot_carrier[b]] = 1 # drop box
 	
 		boxes.check_b = boxes.check_b + (prob*prob_check_b) # if the box was dropped this will change its state to 'free'
 		
 		if boxes.box_c.T[0,boxes.seq] > width: # if the correct box has been delivered then move sequence onto next box ID to collect
 			boxes.seq += 1
+			# reset the last box memory 
+			self.last_box = np.full((self.num_agents,2),-1)
 ## Movement function with agent-agent avoidance behaviours ## 
 def random_walk(swarm,boxes):
 	swarm.counter += 1 # time step forwards 1s 

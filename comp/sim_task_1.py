@@ -73,16 +73,16 @@ class swarm():
 		qu_close_box = np.min(dist,1) < box_range # if the minimum distance box-robot is less than the pick up sensory range, then qu_close_box = 1
 		#qu_close_rob = np.min(dist,0) < box_range
 		mins = np.argmin(dist,1)	
-		
+		checkb = boxes.check_b*qu_close_box
+		box_n = np.argwhere(checkb==1)
 		# needs to be a loop (rather than vectorised) in case two robots are close to the same box
-		for b in range(boxes.num_boxes):		
-			if boxes.check_b[b] == 1 and self.check_r[mins[b]] == 1 and qu_close_box[b] == 1: # if the box is close to a robot and free AND the robot that is closest to box b is also free:
+		for b in box_n:		
+			if self.check_r[mins[b]] == 1: # if the box is close to a robot and free AND the robot that is closest to box b is also free:
 				self.check_r[mins[b]] = 0 # change robot state to 0 (not free, has a box)
 				boxes.check_b[b] = 0 # change box state to 0 (not free, on a robot)
 				boxes.box_c[b] = self.rob_c[mins[b]] # change the box centre so it is aligned with its robot carrier's centre
 				boxes.robot_carrier[b] = mins[b] # set the robot_carrier for box b to that robot ID
 
-		print(boxes.robot_carrier)
 		random_walk(self,boxes) # the robots move using the random walk function which generates a new deviation (rob_d)
 		self.rob_c = self.rob_c + self.rob_d # robots centres change as they move
 		anti_check_b = boxes.check_b == 0 # if box is not free, anti_check_b = 1 and therefore box_d(below) is not 0 
