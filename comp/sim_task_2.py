@@ -85,15 +85,26 @@ class swarm():
 		checkb = boxes.check_b*qu_close_box
 		box_n = np.argwhere(checkb==1)
 		
-		for b in box_n:		
+		#####
+		checkr = self.check_r[mins[box_n]] == 1
+		rob_n = np.argwhere(checkr==1)
+		rob_n = np.argwhere(self.last_box[rob_n,0]!=box_n)
+		rob_n = np.argwhere(self.last_box[rob_n,1]!=box_n)
+		self.check_r[rob_n] = 0
+		boxes.check_b[box_n]
+		######
+		
+		########
+#		for b in box_n:		
 			# if box b is close to a robot (ID = mins[b]) and it is free and it is not one of the previous 2 boxes that robot has picked up THEN pick up the box
-			if self.check_r[mins[b]] == 1 and self.last_box[mins[b],0] != b and self.last_box[mins[b],1] != b: # if the box is close to a robot and free AND the robot that is closest to box b is also free:
+#			if self.check_r[mins[b]] == 1 and self.last_box[mins[b],0] != b and self.last_box[mins[b],1] != b: # if the box is close to a robot and free AND the robot that is closest to box b is also free:
 
-				self.check_r[mins[b]] = 0 # change robot state to 0 (not free, has a box)
-				boxes.check_b[b] = 0 # change box state to 0 (not free, on a robot)
-				boxes.box_c[b] = self.rob_c[mins[b]] # change the box centre so it is aligned with its robot carrier's centre
-				boxes.robot_carrier[b] = mins[b] # set the robot_carrier for box b to that robot IDz
+#				self.check_r[mins[b]] = 0 # change robot state to 0 (not free, has a box)
+#				boxes.check_b[b] = 0 # change box state to 0 (not free, on a robot)
+#				boxes.box_c[b] = self.rob_c[mins[b]] # change the box centre so it is aligned with its robot carrier's centre
+#				boxes.robot_carrier[b] = mins[b] # set the robot_carrier for box b to that robot IDz
 
+		######
 		random_walk(self,boxes) # the robots move using the random walk function which generates a new deviation (rob_d)
 		self.rob_c = self.rob_c + self.rob_d # robots centres change as they move
 		anti_check_b = boxes.check_b == 0  # if box is not free, anti_check_b = 1 and therefore box_d(below) is not 0 

@@ -5,7 +5,7 @@ import ast
 
 boxes = []
 robots = []
-max_time = 70000
+max_time = 100000
 min_time = 0#max_time
 for i in range(50,9,-1):
 	boxes.append(i)
@@ -44,16 +44,12 @@ def NormalizeData(data):
     return (data - np.min(data)) / (np.max(data) - np.min(data))
 
 fig, ax = plt.subplots()
-#time = file_opener("task_1_100000")
-#time = file_opener("task_1_w_bias")
+#time = file_opener("task1_nov_results")
+time = file_opener("task_1_w_bias")
 #time = file_opener("task2_v_time_wo_reshuffle")
-#time = file_opener("task2_v_time_w_reshuffle")
-time = file_opener("task_2_w_bias")
-#time = file_opener("new_total_task1_time_results")
-#time = file_opener("task_2_total_results_time")
-#time = file_opener("task_2_disp_bias_total_results_time")
-#time = file_opener("new_total_task2_bias_time_results")
-#time = file_opener("total_disp_time")
+#time = file_opener("task2_nov_results")
+#time = file_opener("task2bias_nov_results")
+
 
 times = get_times(time)
 #times = NormalizeData(times)
@@ -67,15 +63,14 @@ cbar = ax.figure.colorbar(im, ax=ax)
 ax.set_xticks(np.arange(len(robots)))
 ax.set_yticks(np.arange(len(boxes)))
 
-font = 5
-ax.set_xticklabels(robots,fontsize = font)
-ax.set_yticklabels(boxes,fontsize = font)
+ax.set_xticklabels(robots,fontsize = 10)
+ax.set_yticklabels(boxes,fontsize = 10)
 
 plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
-        rotation_mode="anchor",fontsize=font)
+        rotation_mode="anchor",fontsize=10)
 ax.set_ylabel("Number of boxes",fontsize = 20)
 ax.set_xlabel("Number of robots",fontsize = 20 )
-plt.title("Ordered with bias, time taken",fontsize =  20)
+plt.title("Unordered retrieval with bias, time taken",fontsize =  20)
 cbar.set_label("Time taken (s)",fontsize = 20 )
 
 fig.tight_layout()

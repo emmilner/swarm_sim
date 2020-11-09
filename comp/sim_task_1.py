@@ -205,6 +205,7 @@ class data:
 		self.items = boxes(self.num_boxes,self.robots)
 		self.time = limit
 		self.anim = anim
+		self.counter = 0 
 
 		warehouse_map = warehouse.map()
 		warehouse_map.warehouse_map(width,height)
@@ -219,13 +220,17 @@ class data:
 			while self.robots.counter <= self.time:
 				self.robots.iterate(self.items)
 				if self.items.delivered == self.items.num_boxes:
-					print(1,self.robots.counter)
-					exit()
-			sr = self.items.delivered
-			if sr > 0:
-				sr = float(sr/self.items.num_boxes)
-			print(self.items.delivered,"of",self.items.num_boxes,"collected =",sr*100,"%")
-			print("in",self.robots.counter,"seconds")
+					#print(1,self.robots.counter)
+					#exit()
+					self.counter = self.robots.counter
+					return self.counter
+			#sr = self.items.delivered
+			#if sr > 0:
+			#	sr = float(sr/self.items.num_boxes)
+			#print(self.items.delivered,"of",self.items.num_boxes,"collected =",sr*100,"%")
+#			print("in",self.robots.counter,"seconds")
+		self.counter = self.robots.counter
+		return self.counter
 		if self.anim == True:
 			self.ani()
 			

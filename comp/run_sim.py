@@ -8,7 +8,7 @@ import sim_task_2_tester
 'Task 2: collect the items in order of their ascending ID number'
 
 'Inputs'
-task = 1 # Task 1 or 2?
+task = 2 # Task 1 or 2?
 bias = 0 # Should the behaviour have a heading bias or not?
 new_beh = 0 
 swarm_size = 35 # number of agents in the swarm 
