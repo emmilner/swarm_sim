@@ -43,7 +43,6 @@ R_wall = 25 # repulsion 'forces'/influence factors for robots-walls
 
 pick_up_prob = 100 # 100% likely to pick up a box it comes across if it is free 
 marker_size = width*0.5/20 #diameter
-
 	
 class boxes():
 	def __init__(self,number_of_boxes,robots):
@@ -99,7 +98,11 @@ class swarm():
 		
 		anti_check_r = self.check_r == 0 # opposite of states to make changing states work 
 		self.check_r = self.check_r + self.beyond_r*anti_check_r # if has a box and now delivered it then change state to free (0 -> 1)
+		prev = boxes.delivered
 		boxes.delivered  = np.sum(boxes.beyond_b) # number of robots in the delivery area 
+		#if prev < boxes.delivered: 
+		#	for i in range(boxes.delivered-prev):
+		#		print(self.counter)
 
 ## Movement function with agent-agent avoidance behaviours ## 
 def random_walk(swarm,boxes):
@@ -220,17 +223,13 @@ class data:
 			while self.robots.counter <= self.time:
 				self.robots.iterate(self.items)
 				if self.items.delivered == self.items.num_boxes:
-					#print(1,self.robots.counter)
-					#exit()
-					self.counter = self.robots.counter
-					return self.counter
-			#sr = self.items.delivered
-			#if sr > 0:
-			#	sr = float(sr/self.items.num_boxes)
+					print(1,self.robots.counter)
+					break
+			sr = self.items.delivered
+			if sr > 0:
+				sr = float(sr/self.items.num_boxes)
 			#print(self.items.delivered,"of",self.items.num_boxes,"collected =",sr*100,"%")
-#			print("in",self.robots.counter,"seconds")
-		self.counter = self.robots.counter
-		return self.counter
+			#print("in",self.robots.counter,"seconds")
 		if self.anim == True:
 			self.ani()
 			

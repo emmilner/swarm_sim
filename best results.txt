@@ -1,0 +1,27 @@
+Task 1 
+
+WITHOUT BIAS (before rerun)
+min time = 
+boxes
+robots
+min time per box = 
+
+WITH BIAS
+min time = 
+boxes
+robots
+min time per box = 
+
+
+Task 2 
+minimum time per box delivered 
+
+WITHOUT BIAS
+total min time = 22476.4
+for 21 boxes and 44 robots
+min time per box 1207.6s (
+
+WITH BIAS 
+total min time = 2117.5
+for 13 boxes and 43 robots
+min time per box 186.06s 

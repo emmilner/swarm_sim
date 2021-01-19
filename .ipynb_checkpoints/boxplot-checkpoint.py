@@ -115,7 +115,7 @@ plt.xticks(fontsize = 12)
 plt.yticks(fontsize = 15)
 
 plt.title("Time taken to deliver all the boxes",fontsize = 20)
-plt.ylim(0,max_time)
+plt.set_clim(0,max_time)
 #times = NormalizeData(times)
 #max_time = 1
 #min_time = 0 

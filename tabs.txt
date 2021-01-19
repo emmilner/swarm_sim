@@ -1,0 +1,44 @@
+Industry 4.0 
+https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=4686677
+file:///C:/Users/Emma/Downloads/2082-Article%20Text-2255-1-10-20080325.pdf
+file:///C:/Users/Emma/Downloads/10.11648.j.acis.20160402.17%20(1).pdf
+https://www.aboutamazon.com/news/operations/new-robots-new-jobs
+
+ASRS MAS algorithms 
+file:///C:/Users/Emma/Downloads/2082-Article%20Text-2255-1-10-20080325.pdf
+https://assets.amazon.science/f4/73/58deff5d448ea638a347bce22d94/persistent-and-robust-execution-of-mapf-schedules-in-warehouses.pdf
+https://reader.elsevier.com/reader/sd/pii/S0377221717307920?token=3AE2380E68B91E8D46AAEA71D6A83D0DD18DF8F9CDBE803F2FC36FD48003EF04C687A0C6E875DAAF7657522CC6A510AD
+https://reader.elsevier.com/reader/sd/pii/S2212827119307279?token=18BA38BD836CBAD763CF300736D1D97C44D87A1E9AEB9F218EF7B1018E770327758C52621643A1092D8AACBE9D0F9B56
+https://books.google.co.uk/books?id=_DpRDwAAQBAJ&pg=PA605&lpg=PA605&dq=Construction+Planning+for+a+Modularized+Rail+Structure:+Type+Selection+of+Rail+Structure+Modules+and+Dispatch+Planning+of+Constructor+Robots&source=bl&ots=njT0Bu6-Hi&sig=ACfU3U1NmoUX9fVTTLZBTKvvm3NZv_pCCg&hl=en&sa=X&ved=2ahUKEwia_Ju-rP_sAhUHUhUIHbl3BrUQ6AEwBHoECAEQAg#v=onepage&q=Construction%20Planning%20for%20a%20Modularized%20Rail%20Structure%3A%20Type%20Selection%20of%20Rail%20Structure%20Modules%20and%20Dispatch%20Planning%20of%20Constructor%20Robots&f=false
+https://onlinelibrary.wiley.com/doi/epdf/10.1002/rob.21561
+
+Other self organsiation
+https://www.frontiersin.org/articles/10.3389/frobt.2020.597859/full
+
+https://www.google.com/search?sxsrf=ALeKk03EqK3fsLJUOhM8k-gz6BfnnmMqnw%3A1605001936528&source=hp&ei=0GKqX7mOHau7gwe6za9g&iflsig=AINFCbYAAAAAX6pw4A330lekLd0UT7lnQkPfaC0Y0KvY&q=constructiin+planning+for+modualised+rail+structure&oq=constructiin+planning+for+modualised+rail+structure&gs_lcp=CgZwc3ktYWIQAzIHCCEQChCgAVDWAljWAmDZCGgAcAB4AIABlAGIAZQBkgEDMC4xmAEAoAECoAEBqgEHZ3dzLXdpeg&sclient=psy-ab&ved=0ahUKEwi5tqaS2vfsAhWr3eAKHbrmCwwQ4dUDCAg&uact=5
+https://ieeexplore.ieee.org/abstract/document/8419187
+https://www.sciencedirect.com/science/article/abs/pii/S0952197614002218
+https://www.sciencedirect.com/science/article/abs/pii/S0261517719301694
+
+https://info.voodoorobotics.com/blog/how-to-measure-warehouse-efficiency-detailed-kpis-to-watch
+file:///C:/Users/Emma/Downloads/Optimizationofanautomatedstorageandretrievalsystembytheswarmintelligence%20(1).pdf
+https://iopscience.iop.org/article/10.1088/1757-899X/912/3/032031/pdf
+file:///C:/Users/Emma/Downloads/Li2020_Article_AMechanismForSchedulingMultiRo.pdf
+https://link.springer.com/article/10.1007/s10845-018-1459-y
+https://www.researchgate.net/publication/304614356_Industry_40_A_review_on_industrial_automation_and_robotic
+https://www.emerald.com/insight/content/doi/10.1108/IR-07-2016-0194/full/html
+https://www.semanticscholar.org/paper/Growth-in-e-commerce-boosts-innovation-in-the-robot-Bogue/13e575b323e289a63e5f34d69b2a9360e206479a
+https://arxiv.org/pdf/1809.03531.pdf
+
+https://www.frontiersin.org/articles/10.3389/frobt.2020.597859/full
+https://www.frontiersin.org/articles/10.3389/frobt.2020.00053/full
+https://techxplore.com/news/2019-12-robots-warehousing-workers.html?utm_source=TrendMD&utm_medium=cpc&utm_campaign=TechXplore.com_TrendMD_1
+https://www.frontiersin.org/articles/10.3389/frobt.2020.00036/full
+https://www.iaria.org/conferences2020/filesICAS20/SWARM_ROBOTICS_Editorial.pdf
+https://onlinelibrary.wiley.com/doi/pdfdirect/10.1002/aisy.202000110
+https://gamedevelopment.tutsplus.com/series/how-to-create-a-custom-physics-engine--gamedev-12715
+file:///C:/Users/Emma/Downloads/Jin2020_Article_GeneratingCollectiveForagingBe.pdf
+https://link.springer.com/article/10.1007/s10015-020-00642-2
+https://link.springer.com/chapter/10.1007/978-3-030-60376-2_26
+https://link.springer.com/article/10.1007/s10015-020-00641-3
+https://link.springer.com/chapter/10.1007/978-3-030-60376-2_19
