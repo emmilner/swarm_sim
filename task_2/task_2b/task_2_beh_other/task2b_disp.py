@@ -282,7 +282,7 @@ def random_walk(swarm,boxes):
 	
 	# Force on agent due to proximity to other agents
 	F_agent = R_rob*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents-1)	
-	n = boxes.robot_carrier[boxes.seq]
+	n = boxes.robot_carrier[boxes.seq] #dispersion below
 	if n != -1:
 		for N in range(swarm.num_agents):
 			if N != n:
