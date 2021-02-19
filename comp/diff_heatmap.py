@@ -6,10 +6,10 @@ import ast
 boxes = []
 robots = []
 
-for i in range(50,9,-1):
+for i in range(49,9,-1):
 	boxes.append(i)
 
-for i in range(10,51):
+for i in range(10,20):
 	robots.append(i)
 	
 def file_opener(name):
@@ -27,7 +27,7 @@ def get_times(time):
 fig, ax = plt.subplots(nrows=1,ncols=1,sharex=True,sharey=True)
 time_2 = file_opener("task_1_w_bias_new")
 
-time_new = file_opener("new_ideas/times_newideas")
+time_new = file_opener("mesh/task_1_mesh")
 
 for j in range(0,2):
 	if j == 0: 

@@ -40,17 +40,12 @@ exit_width = int(0.2*width) # if it is too small then it will avoid the wall and
 R_rob = 15 # repulsion 'forces'/influence factors for robots-robots
 R_box = 15 # repulsion 'forces'/influence factors for robots-boxes
 R_wall = 25 # repulsion 'forces'/influence factors for robots-walls
-stuck_limit = 2 #boxes
+stuck_limit = 1 #boxes
 
 pick_up_prob = 100 # 100% likely to pick up a box it comes across if it is free 
 marker_size = width*0.5/20 #diameter
 
-'Features'
-feature_1 = True # if too many in exit, all move west
-feature_2 = True # 3 beacons. if false then bias is still a thing
-feature_3 = True # without a box robots move to robots with a box that say they have found other boxes
-feature_4 = False # agents repel other agents more when there are fewer than 15 boxes left to collect and deliver
-	
+
 class boxes():
 	def __init__(self,number_of_boxes,robots):
 		self.num_boxes = number_of_boxes 
@@ -153,83 +148,18 @@ class swarm():
 			self.check_r[rob_n] = 1
 			boxes.box_c.T[0,boxes.box_n] = boxes.box_c.T[0,boxes.box_n] - 600
 			# any robots that have just delivered a box go to state 4.2 (move west)
-			self.state[rob_n] = 4.2
-
-			# any robots that have just delivered and are in lower sections, go to state 4.1
-			rob_n_lower  = np.argwhere(self.rob_c.T[1]<(height/3))
-			intersect_low = np.intersect1d(rob_n_lower,rob_n) # delivered and in lower section
-			self.state[intersect_low] = 4.1
-			# robots that have just delivered and are in upper section, go to state 4.3
-			rob_n_upper = np.argwhere(self.rob_c.T[1]>(height/3))
-			intersect_up = np.intersect1d(rob_n_upper,rob_n) # delivered and in upper section 
-			self.state[intersect_up] = 4.3
-		
-		# robots in state 4 (no box, in exit) that are clear of the exit area, go to state 0 
-		st_41 = np.argwhere(self.state==4.1)
-		st_42 = np.argwhere(self.state==4.2)
-		st_43 = np.argwhere(self.state==4.3)
-		cleared = np.argwhere(self.rob_c.T[0] < width - exit_width) # beyond line without a box 
-		inter_clear_41 = np.intersect1d(st_41,cleared)
-		self.state[inter_clear_41] = 0 
-		inter_clear_42 = np.intersect1d(st_42,cleared)
-		self.state[inter_clear_42] = 0 
-		inter_clear_43 = np.intersect1d(st_43,cleared)
-		self.state[inter_clear_43] = 0 
-		#
-		
-		# robots that are moving up or down in delivery area (states 4.1 or 4.3), when reach middle beacon, move west (4.3)
-		in_upper = np.argwhere(self.rob_c.T[1]<(2*height/3)) # out of upper section
-		in_lower = np.argwhere(self.rob_c.T[1]>(height/3)) # out of lower section
-		inter_lower = np.intersect1d(st_41,in_lower) # a lower node out of upper section
-		self.state[inter_lower] = 4.2 # lower becomes middle
-		inter_upper = np.intersect1d(st_43,in_upper) # an upper node in lower section 
-		self.state[inter_upper] = 4.2 # upper becomes middle
-		#
- 
-		# robots that are in state 0, have no box, and have moved into exit area, go to state 4.2 to move out of exit area again 
-		st_0 = np.argwhere(self.state==0)
-		notcleared = np.argwhere(self.rob_c.T[0] > width - exit_width) # beyond line without a box 
-		inter_notclear_0 = np.intersect1d(st_0,notcleared)
-		self.state[inter_notclear_0] = 4.2 
-		#
-		
-		# Count robots in states 1,2,3
-		self.new_st_12 = False #reset 
-		self.new_st_23 = False #reset
-		self.new_st_31 = False #reset
-		self.num_1 = (self.state==1).sum()
-		self.num_2 = (self.state==2).sum()
-		self.num_3 = (self.state==3).sum()
-		# do not assign states to the beacon with the highest number of robots assigned to it already
-		self.count = [self.num_1,self.num_2,self.num_3]
-		if max(self.count) != 0:
-			if self.num_1 == max(self.count) :
-				self.new_st_12 = True
-			if self.num_2 == max(self.count) :
-				self.new_st_23 = True
-			if self.num_3 == max(self.count) :
-				self.new_st_31 = True		
-		#
-		
+			self.state[rob_n] = 0 
+	
 		# robots that have a box and are in state 0 or 5 recieve new random states 1,2,3
 		self.have_a_box = np.argwhere(self.check_r==0) # have a box (1= free)
 		self.st_0 = np.argwhere(self.state==0) # robot numbers with state 0 
 		self.st_5 = np.argwhere(self.state==5) # robot numbers with state 5
 		self.st_50 = np.append(self.st_0,self.st_5) # robot numbers with state 0 or 5 
 		self.box_and_0 = np.intersect1d(self.st_50,self.have_a_box) # robots with state 0 or 5 that are carrying a box
-		self.random_states = np.random.randint(1,3,np.size(self.box_and_0)) # random states selected between 1 and 3
-		# if one of the beacons is too busy, then change the states set to that beacon to a new one
-		if self.new_st_12 == True: # don't assign to 1 if it is the beacon with the most robots
-			self.r = np.argwhere(self.random_states==1)
-			self.random_states[self.r] = 2
-		if self.new_st_23 == True: # don't assign to 2 if it is the beacon with the most robots
-			self.r = np.argwhere(self.random_states==2)
-			self.random_states[self.r] = 3
-		if self.new_st_31 == True: # don't assign to 3 if it is the beacon with the most robots
-			self.r = np.argwhere(self.random_states==3)
-			self.random_states[self.r] = 2
+		self.random_states = np.random.choice([1,3],np.size(self.box_and_0)) # random states selected between 1 and 3
 		self.state[self.box_and_0] = self.random_states # assign the states to the bots with a box and in state 0 or 5 at the moment
 		#
+
 		
 		# total number of robots in the range of beacons i.e. in the delivery area 
 		self.total = (self.rob_c.T[0]>width-exit_width-50).sum() 
@@ -243,20 +173,12 @@ class swarm():
 		
 		self.st0 = np.argwhere(self.state==0).flatten()
 		self.st1 = np.argwhere(self.state==1).flatten()
-		self.st2 = np.argwhere(self.state==2).flatten()
-		self.st3 = np.argwhere(self.state==3).flatten()
-		self.st41 = np.argwhere(self.state==4.1).flatten()
-		self.st42 = np.argwhere(self.state==4.2).flatten()
-		self.st43 = np.argwhere(self.state==4.3).flatten()
+		self.st3 = np.argwhere(self.state==3).flatten()		
 		self.st5 = np.argwhere(self.state==5).flatten()
 	# the following is for plotting purposes only 
 		self.state_0 = self.rob_c[self.st0]
 		self.state_1 = self.rob_c[self.st1]
-		self.state_2 = self.rob_c[self.st2]
-		self.state_3 = self.rob_c[self.st3]
-		self.state_41 = self.rob_c[self.st41]
-		self.state_42 = self.rob_c[self.st42]
-		self.state_43 = self.rob_c[self.st43]
+		self.state_3 = self.rob_c[self.st3]		
 		self.state_5 = self.rob_c[self.st5]
 	###
 
@@ -270,51 +192,24 @@ def random_walk(swarm,boxes):
 	# Force for movement according to new chosen heading 
 	swarm.heading_x = 1*np.cos(swarm.heading) # move in x 
 	swarm.heading_y = 1*np.sin(swarm.heading) # move in y
-	
-	if feature_2 == False:
-		swarm.heading_x[swarm.check_r==0] = swarm.heading_x[swarm.check_r==0]+1
-	
-	if feature_2 == True:
-		# S1, with box, move to top right corner (NE)
-		swarm.heading_x[swarm.st1] = swarm.heading_x[swarm.st1] + 1
-		swarm.heading_y[swarm.st1] = swarm.heading_y[swarm.st1] + 1
-		if np.size(swarm.st1) > 0:
-			at_height_limit = swarm.rob_c.T[1,swarm.st1] > height-2.5*radius
-			swarm.heading_y[swarm.st1[at_height_limit]] = 0 
+# S1, with box, move to top right corner (NE)
+	swarm.heading_x[swarm.st1] = swarm.heading_x[swarm.st1] + 1
+	swarm.heading_y[swarm.st1] = swarm.heading_y[swarm.st1] + 1
+	if np.size(swarm.st1) > 0:
+		at_height_limit = swarm.rob_c.T[1,swarm.st1] > height-2.5*radius
+		swarm.heading_y[swarm.st1[at_height_limit]] = 0 
 
 		# S3, with box, move to bottom right corner (SE)
-		swarm.heading_x[swarm.st3] = swarm.heading_x[swarm.st3] + 1
-		swarm.heading_y[swarm.st3] = swarm.heading_y[swarm.st3] - 0.5
-		if np.size(swarm.st3) > 0:
-			at_height_lower_limit = swarm.rob_c.T[1,swarm.st3] < 2*radius
-			swarm.heading_y[swarm.st3[at_height_lower_limit]] = 0
+	swarm.heading_x[swarm.st3] = swarm.heading_x[swarm.st3] + 1
+	swarm.heading_y[swarm.st3] = swarm.heading_y[swarm.st3] - 1
+	if np.size(swarm.st3) > 0:
+		at_height_lower_limit = swarm.rob_c.T[1,swarm.st3] < 2*radius
+		swarm.heading_y[swarm.st3[at_height_lower_limit]] = 0
 
-		# S2, with box, move to right (E), y zero
-		swarm.heading_x[swarm.st2] = swarm.heading_x[swarm.st2] + 1
 		#swarm.heading_y[swarm.st2] = 0 
-		# S4.2, delivered box, in exit, move left (W) with no y movement
-		swarm.heading_x[swarm.st42] = swarm.heading_x[swarm.st42] - 1 # middle, move west 
-		#swarm.heading_y[swarm.st42] = swarm.heading_y[swarm.st42] # middle, random y movement
-		# S4.1, delivered box, in exit, move up (N), 0 x movement
-		swarm.heading_y[swarm.st41] = swarm.heading_y[swarm.st41] + 1 #lower, move north 
-		swarm.heading_x[swarm.st41] = 0 
-		# S4.3, delivered box, in exit, move down (S), random x movement
-		swarm.heading_y[swarm.st43] = swarm.heading_y[swarm.st43] - 1 #upper, move south 
-		swarm.heading_x[swarm.st43] = 0 
-		# S5, too many robots in delivery area, all without box move left (W)
-	
-	if feature_1 == True:
-		swarm.heading_x[swarm.st5] = swarm.heading_x[swarm.st5] - 1 # too many in delivery, move west 
-		if feature_2 == False:
-			# S4.2, delivered box, in exit, move left (W) with no y movement
-			swarm.heading_x[swarm.st42] = swarm.heading_x[swarm.st42] - 1 # middle, move west 
-			#swarm.heading_y[swarm.st42] = swarm.heading_y[swarm.st42] # middle, random y movement
-			# S4.1, delivered box, in exit, move up (N), 0 x movement
-			swarm.heading_y[swarm.st41] = swarm.heading_y[swarm.st41] + 1 #lower, move north 
-			swarm.heading_x[swarm.st41] = 0 
-			# S4.3, delivered box, in exit, move down (S), random x movement
-			swarm.heading_y[swarm.st43] = swarm.heading_y[swarm.st43] - 1 #upper, move south 
-			swarm.heading_x[swarm.st43] = 0 
+	# S5, too many robots in delivery area, all without box move left (W)
+	swarm.heading_x[swarm.st5] = swarm.heading_x[swarm.st5] - 1 
+
 	
 	F_heading = -np.array([[swarm.heading_x[n], swarm.heading_y[n]] for n in range(0, swarm.num_agents)]) # influence on the robot's movement based on the noise added to the heading
 	
@@ -344,20 +239,8 @@ def random_walk(swarm,boxes):
 	# disperse from agents with boxes
 	m = np.argwhere(swarm.check_r==0).flatten() # robot numbers which are holding boxes
 	#dispersion below
-	k = np.argwhere(swarm.stuck>stuck_limit).flatten()
-	j = np.intersect1d(m,k) # have a box and are trapped 
-	g = np.argwhere(swarm.check_r==1).flatten() # no box	
 
-	if feature_3 == True:
-		for K in j:
-			for G in g:
-				if agent_distance[K][G] > 3*radius:
-					F_agent[K][0][G] = F_agent[K][0][G]*-1 
-					F_agent[K][1][G] = F_agent[K][1][G]*-1
-					#F_agent[G][0][K] = F_agent[G][0][K]*-1000 
-					#F_agent[G][1][K] = F_agent[G][1][K]*-1000
 
-	#F_agent[ka][:][k] = F_agent[ka][:][k]*-1
 	for N in range(swarm.num_agents):
 		for n in m: 
 			if N != n:
@@ -377,9 +260,6 @@ def random_walk(swarm,boxes):
 	F_agent = np.sum(F_agent, axis =0).T # sum the repulsion vectors
 #	F_agent = F_agent*(1+(boxes.delivered/4))
 
-	if feature_4 == True:
-		if (boxes.delivered-boxes.num_boxes) < 15:
-			F_agent = F_agent*(50)
 	# Force on agent due to proximity to walls
 	F_wall_avoidance = avoidance(swarm.rob_c, swarm.map)
 
@@ -463,7 +343,8 @@ class data:
 				self.robots.iterate(self.items)
 				if self.items.delivered == self.items.num_boxes:
 					#print(1,self.robots.counter)
-					print(self.robots.counter)
+					return self.robots.counter
+					break
 					self.robots.counter = self.time+1
 					#exit()
 			sr = self.items.delivered
@@ -481,16 +362,8 @@ class data:
 					  'ko',	  markersize = marker_size, fillstyle = 'none')
 		dot1, = ax.plot(self.robots.state_1[:,0],self.robots.state_1[:,1],
 					  'bo',	  markersize = marker_size, fillstyle = 'none')
-		dot2, = ax.plot(self.robots.state_2[:,0],self.robots.state_2[:,1],
-					  'go',	  markersize = marker_size, fillstyle = 'none')
 		dot3, = ax.plot(self.robots.state_3[:,0],self.robots.state_3[:,1],
 					  'mo',	  markersize = marker_size, fillstyle = 'none')
-		dot41, = ax.plot(self.robots.state_41[:,0],self.robots.state_41[:,1],
-					  'co',	  markersize = marker_size, fillstyle = 'none')
-		dot42, = ax.plot(self.robots.state_42[:,0],self.robots.state_42[:,1],
-					  'co',	  markersize = marker_size, fillstyle = 'none')
-		dot43, = ax.plot(self.robots.state_43[:,0],self.robots.state_43[:,1],
-					  'co',	  markersize = marker_size, fillstyle = 'none')
 		dot5, = ax.plot(self.robots.state_5[:,0],self.robots.state_5[:,1],
 					  'yo',	  markersize = marker_size, fillstyle = 'none')
 		box, = ax.plot(self.items.box_c[:,0],self.items.box_c[:,1], 'rs', markersize = marker_size-5)
@@ -502,11 +375,7 @@ class data:
 
 			dot0.set_data(self.robots.state_0[:,0],self.robots.state_0[:,1])
 			dot1.set_data(self.robots.state_1[:,0] ,self.robots.state_1[:,1] )
-			dot2.set_data(self.robots.state_2[:,0] ,self.robots.state_2[:,1] )
 			dot3.set_data(self.robots.state_3[:,0] ,self.robots.state_3[:,1] )
-			dot41.set_data(self.robots.state_41[:,0] ,self.robots.state_41[:,1] )
-			dot42.set_data(self.robots.state_42[:,0] ,self.robots.state_42[:,1] )
-			dot43.set_data(self.robots.state_43[:,0] ,self.robots.state_43[:,1] )
 			dot5.set_data(self.robots.state_5[:,0] ,self.robots.state_5[:,1] )
 
 			box.set_data(self.items.box_c[:,0], self.items.box_c[:,1])

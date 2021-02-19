@@ -40,14 +40,14 @@ exit_width = int(0.2*width) # if it is too small then it will avoid the wall and
 R_rob = 15 # repulsion 'forces'/influence factors for robots-robots
 R_box = 15 # repulsion 'forces'/influence factors for robots-boxes
 R_wall = 25 # repulsion 'forces'/influence factors for robots-walls
-stuck_limit = 2 #boxes
+stuck_limit = 1 #boxes
 
 pick_up_prob = 100 # 100% likely to pick up a box it comes across if it is free 
 marker_size = width*0.5/20 #diameter
 
 'Features'
-feature_1 = True # if too many in exit, all move west
-feature_2 = True # 3 beacons. if false then bias is still a thing
+feature_1 = True# if too many in exit, all move west
+feature_2 = False# 3 beacons. if false then bias is still a thing
 feature_3 = True # without a box robots move to robots with a box that say they have found other boxes
 feature_4 = False # agents repel other agents more when there are fewer than 15 boxes left to collect and deliver
 	
@@ -217,7 +217,7 @@ class swarm():
 		self.st_5 = np.argwhere(self.state==5) # robot numbers with state 5
 		self.st_50 = np.append(self.st_0,self.st_5) # robot numbers with state 0 or 5 
 		self.box_and_0 = np.intersect1d(self.st_50,self.have_a_box) # robots with state 0 or 5 that are carrying a box
-		self.random_states = np.random.randint(1,3,np.size(self.box_and_0)) # random states selected between 1 and 3
+		self.random_states = np.random.randint(1,4,np.size(self.box_and_0)) # random states selected between 1 and 3
 		# if one of the beacons is too busy, then change the states set to that beacon to a new one
 		if self.new_st_12 == True: # don't assign to 1 if it is the beacon with the most robots
 			self.r = np.argwhere(self.random_states==1)
@@ -463,7 +463,9 @@ class data:
 				self.robots.iterate(self.items)
 				if self.items.delivered == self.items.num_boxes:
 					#print(1,self.robots.counter)
-					print(self.robots.counter)
+					#print(self.robots.counter)
+					return self.robots.counter
+					break
 					self.robots.counter = self.time+1
 					#exit()
 			sr = self.items.delivered
