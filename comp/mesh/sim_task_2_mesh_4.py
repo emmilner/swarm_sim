@@ -29,23 +29,22 @@ radius = 12.5 # Radius of single agent (half of 25)
 width = 500 # Width of warehouse (100)
 height = 500 # Height (depth) of warehouse (100)
 speed = 2 # Agent speed (0.5)
-repulsion_distance = 10#radius/2# Distance at which repulsion is first felt (3)
+#repulsion_distance = radius/2# Distance at which repulsion is first felt (3)
+r_box = radius/2 #10
+r_agent = radius/2#7
 
 box_radius = radius
 box_range = 2*box_radius # range at which a box can be picked up 
 exit_width = int(0.2*width) # if it is too small then it will avoid the wall and be less likely to reach the exit zone 
 ###
-R_rob = 15 # repulsion 'forces'/influence factors for robots-robots
-R_box = 15 # repulsion 'forces'/influence factors for robots-boxes
+R_rob = 15#15 # repulsion 'forces'/influence factors for robots-robots
+R_box = 15#15 # repulsion 'forces'/influence factors for robots-boxes
 R_wall = 25 # repulsion 'forces'/influence factors for robots-walls
 stuck_limit = 1
 
 pick_up_prob = 100 # prob is <= this 
 drop_prob = 3
 marker_size = width*0.5/20 #diameter of animated robots
-
-feature_7 = False
-feature_8 = True # really should be EITHER 7 OR 8 
 
 class boxes():
 	def __init__(self,number_of_boxes,robots):
@@ -73,35 +72,41 @@ class swarm():
 		self.drop_off_prob = drop_prob # probability out of 100 of the box being dropped by the robot (if it is not the correct box)
 		self.last_box = np.full((self.num_agents,2),-1) # record of the box IDs of the two previous boxes robot has held (so robot doesn't keep picking up the same boxes)
 		self.stuck = np.zeros(self.num_agents)
+		self.state = np.zeros(self.num_agents)
+		self.st0 = np.argwhere(self.state==0) 
+		self.st5 = np.argwhere(self.state==5) 
+		self.r_box = 10
+		self.r_agent = 50
 
 	
 	def iterate(self,boxes):  # moves the robot and box positions forward in one time step
 		dist = cdist(boxes.box_c, self.rob_c) # calculates the euclidean distance from every robot to every box (centres)
-		if feature_7 == True: 
-			self.stuck_not = np.argwhere(boxes.check_b==0)
-			dist[self.stuck_not] = 1000
-			self.stuck = np.count_nonzero(dist<3*box_range,axis=0)	
+	#	if feature_7 == True: 
+	#		self.stuck_not = np.argwhere(boxes.check_b==0)
+	#		dist[self.stuck_not] = 1000
+	#		self.stuck = np.count_nonzero(dist<3*box_range,axis=0)	
 		##
 		qu_close_box = np.min(dist,1) < box_range # if the minimum distance box-robot is less than the pick up sensory range, then qu_close_box = 1
 		closest_rob_n = np.argmin(dist,1)
 		# needs to be a loop (rather than vectorised) in case two robots are close to the same box
 		close_and_free_b = boxes.check_b*qu_close_box
 		box_n = np.argwhere(close_and_free_b==1)
+
 		for b in box_n:		
 			# if box b is close to a robot (ID = closest_rob_n[b]) and it is free and it is not one of the previous 2 boxes that robot has picked up THEN pick up the box
 			if self.check_r[closest_rob_n[b]] == 1 and self.last_box[closest_rob_n[b],0] != b and self.last_box[closest_rob_n[b],1] != b: # if the box is close to a robot and free AND the robot that is closest to box b is also free:
-
 				self.check_r[closest_rob_n[b]] = 0 # change robot state to 0 (not free, has a box)
 				boxes.check_b[b] = 0 # change box state to 0 (not free, on a robot)
 				boxes.box_c[b] = self.rob_c[closest_rob_n[b]] # change the box centre so it is aligned with its robot carrier's centre
 				boxes.robot_carrier[b] = closest_rob_n[b] # set the robot_carrier for box b to that robot IDz
-
+			
 		random_walk(self,boxes) # the robots move using the random walk function which generates a new deviation (rob_d)
+		
 		self.rob_c = self.rob_c + self.rob_d # robots centres change as they move
 		anti_check_b = boxes.check_b == 0  # if box is not free, anti_check_b = 1 and therefore box_d(below) is not 0 
 		boxes.box_d = np.array((anti_check_b,anti_check_b)).T*self.rob_d[boxes.robot_carrier] # move the boxes by the amount equal to the robot carrying them 
 
-		boxes.box_c = boxes.box_c + boxes.box_d # new box centres 
+		boxes.box_c = boxes.box_c + boxes.box_d # new box centres
 		boxes.beyond_b = boxes.box_c.T[0,boxes.seq] > width - exit_width - radius # beyond_b = 1 if box centre is in the delivery area (including those already delivered)
 		if boxes.beyond_b == True: 
 			rob_n = boxes.robot_carrier[boxes.seq]
@@ -111,10 +116,14 @@ class swarm():
 			boxes.box_c.T[0,boxes.seq] = boxes.box_c.T[0,boxes.seq] - 600
 			boxes.seq+=1
 			boxes.delivered = boxes.seq
+			#print(self.counter)
 			self.last_box = np.full((self.num_agents,2),-1)
 			
 		if boxes.seq < boxes.num_boxes:
 			box_drop = np.random.randint(0,100,boxes.num_boxes) # generate a random number
+			beyond_all = np.argwhere(boxes.box_c.T[0]>width-exit_width-radius)
+			box_drop[beyond_all] = 100
+
 			prob = box_drop < self.drop_off_prob # = 1 (drop the box) if the random number generated is below the drop off probability value
 			prob[boxes.seq] = 0 # the probabilty of dropping the correct sequenced box is always 0, don't drop
 			prob_check_b = boxes.check_b == 0 # = 1 if the box is being carried
@@ -126,6 +135,12 @@ class swarm():
 			self.check_r[rob_n] = 1 
 			boxes.robot_carrier[box_n] = -1
 			boxes.check_b = boxes.check_b + (prob*prob_check_b) # if the box was dropped this will change its state to 'free'
+			beyond_all_rob = np.argwhere(self.rob_c.T[0]>width-exit_width-radius)
+			self.state[beyond_all_rob] = 5 
+			not_beyond_all = np.argwhere(self.rob_c.T[0]<width-exit_width-radius)
+			self.state[not_beyond_all] = 0 
+		self.st0 = np.argwhere(self.state ==0).flatten()
+		self.st5 = np.argwhere(self.state ==5).flatten()
 		
 ## Movement function with agent-agent avoidance behaviours ## 
 def random_walk(swarm,boxes):
@@ -138,11 +153,69 @@ def random_walk(swarm,boxes):
 	heading_x = 1*np.cos(swarm.heading) # move in x 
 	heading_y = 1*np.sin(swarm.heading) # move in y
 	heading_x[boxes.robot_carrier[boxes.seq]] += 1	
+	i = boxes.robot_carrier[boxes.seq]
+	if (boxes.num_boxes - boxes.delivered) < 160 and i!=0:
+		x = swarm.rob_c.T[0,1]
+		y = swarm.rob_c.T[1,1]
+		A = exit_width
+		B = width-exit_width
+		C = exit_width
+		D = height-exit_width
+		w = width/2
+		h = height/2
+		### neeed to put RW in the centre square
+		## and do a nested if so doesnt confuse itself
+		if x<w and y<h:
+			heading_y[1] += 1
+			heading_x[1] -= 1
+		if x<w and y>h:
+			heading_y[1] += 1 
+			heading_x[1] += 1
+		if x>w and y>h:
+			heading_y[1] -= 1 
+			heading_x[1] += 1
+		if x>w and y<h:
+			heading_y[1] -= 1 
+			heading_x[1] -= 1
+#		if y<C and x>A: #left
+#			heading_x[1] = -1 
+#			heading_y[1] = 0#-0.1*heading_y[1]
+#		if y>D and x<B: #right
+#			heading_x[1] = 1 
+#			heading_y[1] = 0#0.1*heading_y[1]
+#		if y<D and x<A:
+#			heading_x[1] = 0#-0.1*heading_x[1]
+#			heading_y[1] = 1
+#		if y>C and x>B:
+#			heading_x[1] = 0#0.1*heading_x[1]
+#			heading_y[1] =-1
+		
+#		if x>B:
+#			if y>C: #move up
+#				heading_x[1] += 0.1
+#				heading_y[1] -=1
+#			if y<C:#move left
+#				heading_x[1] -=1 
+#				heading_y[1] -= 0.1
+#		if x<A:
+#			if y<D: #move up
+#				heading_x[1] -= 0.1 
+#				heading_y[1] +=1
+#			if y>D: #move right
+#				heading_x[1] +=1 
+#				heading_y[1] += 0.1 
+#		if x<B and x>A: 
+#			if y>D: #move right
+#				heading_x[1] +=1 
+#				heading_y[1] += 0.1			
+#			if y<C:#move left
+#				heading_x[1] -=1 
+#				heading_y[1] -= 0.1
 
 	F_heading = -np.array([[heading_x[n], heading_y[n]] for n in range(0, swarm.num_agents)])# influence on the robot's movement based on the noise added to the heading
 	
 	# Agent-agent avoidance
-	r = repulsion_distance # distance at which repulsion is felt (set at start of code)
+	#r = repulsion_distance # distance at which repulsion is felt (set at start of code)
 	
 	# Compute (euclidean == cdist) distance between agents
 	agent_distance = cdist(swarm.rob_c, swarm.rob_c)	# distance between all the agents to all the agents
@@ -153,50 +226,40 @@ def random_walk(swarm,boxes):
 	
 	# Calc repulsion vector on agents due to proximity to (none moving) boxes
 	# Equation chosen so that the repulsion is proportional to the distance and influence factor (R_box)
-	F_box = R_box*r*np.exp(-box_dist/r)[:,np.newaxis,:]*proximity_to_boxes/(swarm.num_agents-1)	
+	F_box = (R_box*swarm.r_box*np.exp(-box_dist/swarm.r_box)[:,np.newaxis,:]*proximity_to_boxes/(swarm.num_agents-1))
+	F_box[boxes.seq][:][:] = 0 
 	F_box = np.sum(F_box,axis=0) # sum the repulsion vectors due to boxes on the agents
-	
-	not_free = swarm.check_r == 0  # list of boxes that are sitting in the warehouse not picked up 
-	F_box[0] = not_free*F_box[0].T # repulsion force on agents goes to 0 for the boxes that are being carried 
-	F_box[1] = not_free*F_box[1].T
+#	not_free = swarm.check_r == 0  # list of boxes that are sitting in the warehouse not picked up 
+#	F_box[0] = not_free*F_box[0].T # repulsion force on agents goes to 0 for the boxes that are being carried 
+#	F_box[1] = not_free*F_box[1].T
 	
 	# Calc repulsion vector on agent due to proximity to other agents
 	# Equation chosen so that the repulsion is proportional to the distance and influence factor (R_rob)	
-	F_agent = R_rob*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents-1)		
-	m = np.argwhere(swarm.check_r==0).flatten() # robot numbers which are holding boxes
-	#dispersion below
-	k = np.argwhere(swarm.stuck>stuck_limit).flatten()
-	j = np.intersect1d(m,k) # have a box and are trapped 
-	g = np.argwhere(swarm.check_r==1).flatten() # no box
-	if feature_7 == True:
-		for K in j:
-			for G in g:
-				if agent_distance[K][G] > 3*radius:
-					F_agent[K][0][G] = F_agent[K][0][G]*-1 
-					F_agent[K][1][G] = F_agent[K][1][G]*-1
-						#F_agent[G][0][K] = F_agent[G][0][K]*-1000 
-						#F_agent[G][1][K] = F_agent[G][1][K]*-1000
-	#dispersion
-	i = boxes.robot_carrier[boxes.seq]
-	if feature_8 == True:
-		before = swarm.check_r[i]
-		swarm.check_r[i] = 1
-		j = np.argwhere(swarm.check_r==0)
-		F_agent[:][:][i] = 0 # disperse from robots with boxes
-		F_agent[i][:][:] = 0
-		F_box[:,i] = F_box[:,i]/10
-		swarm.check_r[i] = before
-	#for N in range(swarm.num_agents):
-	#	for n in m: 
-	#		if N != n:
-	#			F_agent[n][0][N] = F_agent[n][0][N]*10 # disperse from robots with boxes
-	#			F_agent[n][1][N] = F_agent[n][1][N]*10
-	#		if N == n or N==i: 
-	#			F_agent[N][0][n] = 0 # don't disperse from yourself
-	#			F_agent[N][1][n] = 0
-	
+	#F_agent[1,:,:] = (-7 + proximity_vectors[1,:,:])^3
+	#F_agent[1,:,1] = F_agent[1,:,1]/-10
+	F_agent_1 = R_rob*swarm.r_agent*np.exp(-agent_distance/swarm.r_agent)[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents-1)
+	F_agent = F_agent_1
+	#if (swarm.counter % 50) == 0 :
+	F_agent = ((1/(100000*swarm.num_agents))*((20 - agent_distance)**3))[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents-1)
+	F_agent += F_agent_1
+	#F_agent = (1/100000*(agent_distance-5))[:,np.newaxis,:]*proximity_vectors/(swarm.num_agents-1)
 	F_agent = np.sum(F_agent, axis =0).T # sum the repulsion vectors
+	F_agent[1,:] = 0
+	#F_agent_1_sum = np.sum(F_agent_1,axis=0).T
+	#F_agent[1,:] = F_agent_1_sum[1,:]*10
 
+
+	i = boxes.robot_carrier[boxes.seq]
+	j = np.argwhere(swarm.check_r==0)
+	k = np.argwhere(swarm.rob_c.T[0] > width-exit_width)
+	h = np.intersect1d(j,k)
+	F_box[:,h] = 0#F_box[:,h]/100
+	if i != -1:
+		F_agent[i,:] = 0 
+
+	# do not avoid boxes if you dont have a box
+	i = np.argwhere(swarm.check_r==1)
+	F_box[:,i] = 0
 	# Force on agent due to proximity to walls
 	F_wall_avoidance = avoidance(swarm.rob_c, swarm.map)
 
@@ -282,8 +345,10 @@ class data:
 			while self.robots.counter <= self.time:
 				self.robots.iterate(self.items)
 				if self.items.delivered == self.items.num_boxes:
-					print(1,self.robots.counter)
-					exit()
+					#print(1,self.robots.counter)
+					return self.robots.counter
+					break
+					#exit()
 			sr = self.items.delivered
 			if sr > 0:
 				sr = float(sr/self.items.num_boxes)

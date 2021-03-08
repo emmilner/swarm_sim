@@ -32,15 +32,15 @@ def get_times(time):
 			#if times[b,r] < min_time:
 			#	min_time = times[b,r]
 			#if time[robots[r]][boxes[b]]/boxes[b] > max_time:
-			if time[robots[r]][boxes[b]] > max_time:
-				max_time = time[robots[r]][boxes[b]]#/boxes[b]
-				max_b = boxes[b]
-				max_r = robots[r]
+		#	if time[robots[r]][boxes[b]] > max_time:
+		#		max_time = time[robots[r]][boxes[b]]#/boxes[b]
+		#		max_b = boxes[b]
+		#		max_r = robots[r]
 			#if time[robots[r]][boxes[b]]/boxes[b] < min_time:
-			if time[robots[r]][boxes[b]] < min_time:
-				min_time = time[robots[r]][boxes[b]]#/boxes[b]
-				min_b = boxes[b]
-				min_r = robots[r]
+		#	if time[robots[r]][boxes[b]] < min_time:
+		#		min_time = time[robots[r]][boxes[b]]#/boxes[b]
+		#		min_b = boxes[b]
+		#		min_r = robots[r]
 			#text = ax.text(r, b, times[b,r],
 			             # ha="center", va="center", color="w")
 	#times = time_m
@@ -54,15 +54,16 @@ def get_times(time):
 
 fig, ax = plt.subplots(nrows=1,ncols=2,sharex=True,sharey=True)
 #time_1 = file_opener("task_1_new")
-#time_2 = file_opener("task_1_w_bias_new")
 #time_3 = file_opener("task_2_new")
 #time_3 = file_opener("task2_nov_results")
-#time_4 = file_opener("task_2_w_bias_new")
+time_3 = file_opener("task_2_w_bias_new")
+#time_3 = file_opener("task_2_mesh")
 #time_new = file_opener("times_newideas") #task 1 only 
-time_2 = file_opener("task_1_mesh_12")
+time_2 = file_opener("task1_mesh11_new")
 time_1 = file_opener("task_1_w_bias_new")
+time_4 = file_opener("task2_mesh1_new")
 
-for j in range(0,2):
+for j in range(2,4):
 	if j == 0: 
 		times = get_times(time_1)
 		title = "Unordered retrieval with bias"
@@ -70,22 +71,22 @@ for j in range(0,2):
 		i = 0 
 	if j == 1: 
 		times = get_times(time_2)
-		title = "Unordered retrieval with mesh 12"
+		title = "Unordered retrieval with mesh 1"
 		#i = 0,1
 		i = 1
 	if j == 2: 
 		times = get_times(time_3)
-		title = "Ordered retrieval"
+		title = "Ordered retrieval with bias"
 		#i = 1,0
 		i = 0 
 	if j == 3: 
 		times = get_times(time_4)
-		title = "Ordered retrieval with bias"
+		title = "Ordered retrieval with mesh"
 		#i = 1,1
 		i = 1
 	
 	#print(i)
-	im1 = ax[i].imshow(times, cmap= "jet",vmin=0,vmax=600)#"Greys_r")#, clim=(0,16000))
+	im1 = ax[i].imshow(times, cmap= "jet",vmin=0,vmax=25000)#"Greys_r")#, clim=(0,16000))
 	cbar = ax[i].figure.colorbar(im1, ax=ax[i])
 	ax[i].set_title(title,fontsize =  15)
 	cbar.set_label("Time taken (s)",fontsize = 15 )
@@ -95,8 +96,8 @@ for j in range(0,2):
 	ax[i].set_yticks([40,30,20,10,0])
 	#ax.set_xticklabels(robots,fontsize = 10)
 	ax[i].set_xticklabels(range(10,51,10),fontsize = 15)
-	#ax.set_yticklabels(boxes,fontsize = 10)
 	ax[i].set_yticklabels(range(10,51,10),fontsize = 15)
+	#ax.set_yticklabels(boxes,fontsize = 10)
 	plt.setp(ax[i].get_xticklabels(), rotation=45, ha="right",
        rotation_mode="anchor",fontsize=15)
 	ax[i].set_ylabel("Number of boxes",fontsize = 10)

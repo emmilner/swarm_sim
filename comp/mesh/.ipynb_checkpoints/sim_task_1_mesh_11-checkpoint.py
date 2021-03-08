@@ -240,7 +240,9 @@ def random_walk(swarm,boxes):
 
 	F_agent = np.sum(F_agent, axis =0).T # sum the repulsion vectors
 #	F_agent = F_agent*(1+(boxes.delivered/4))
-
+	i = np.argwhere(swarm.check_r==1)
+	F_box[:,i] = 0
+	
 	# Force on agent due to proximity to walls
 	F_wall_avoidance = avoidance(swarm.rob_c, swarm.map)
 
