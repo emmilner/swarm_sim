@@ -30,8 +30,8 @@ width = 500 # Width of warehouse (100)
 height = 500 # Height (depth) of warehouse (100)
 speed = 2 # Agent speed (0.5)
 #repulsion_distance = radius/2# Distance at which repulsion is first felt (3)
-r_box = radius/2 #10
-r_agent = radius/2#7
+#r_box = radius/2 #10
+#r_agent = radius/2#7
 
 box_radius = radius
 box_range = 2*box_radius # range at which a box can be picked up 
@@ -352,8 +352,9 @@ class data:
 			sr = self.items.delivered
 			if sr > 0:
 				sr = float(sr/self.items.num_boxes)
-			print(self.items.delivered,"of",self.items.num_boxes,"collected =",sr*100,"%")
-			print("in",self.robots.counter,"seconds")
+			print(self.items.delivered)
+			#print(self.items.delivered,"of",self.items.num_boxes,"collected =",sr*100,"%")
+#			print("in",self.robots.counter,"seconds")
 		if self.anim == True:
 			self.ani()
 			

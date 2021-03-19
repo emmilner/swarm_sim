@@ -29,17 +29,27 @@ def get_times(time):
 #fig, ax = plt.subplots(nrows=1,ncols=2,sharex=True,sharey=True)
 
 time_1 = file_opener("task_1_w_bias_new")
-time_new = file_opener("new_ideas/times_newideas")
+time_2 = file_opener("new_ideas/times_newideas")
 
 for j in range(0,2):
 	if j == 0: 
 		times = get_times(time_1)
-		title = "Unordered retrieval with bias"
+		title = "Unordered retrieval"
 		#i = 0,0
 		i = 0 
 	if j == 1: 
-		times = get_times(time_new)
-		title = "Unordered retrieval with new ideas"
+		times = get_times(time_2)
+		title = "Unordered retrieval with bias"
+		#i = 0,1
+		i = 1
+	if j == 2: 
+		times = get_times(time_3)
+		title = "Ordered retrieval"
+		#i = 0,0
+		i = 0 
+	if j == 3: 
+		times = get_times(time_4)
+		title = "Ordered retrieval with bias"
 		#i = 0,1
 		i = 1
 		
@@ -48,6 +58,6 @@ for j in range(0,2):
 	plt.legend(["with bias","with new ideas"])
 	plt.ylabel("time (s)")
 	plt.xlabel("number of boxes")
-	plt.title(str(len(robots)-20)+"robots, task 1")
+	plt.title(str(len(robots)-20)+" robots, task 1")
 	
 plt.show()

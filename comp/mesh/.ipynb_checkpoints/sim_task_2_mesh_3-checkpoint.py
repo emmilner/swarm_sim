@@ -334,8 +334,9 @@ class data:
 			sr = self.items.delivered
 			if sr > 0:
 				sr = float(sr/self.items.num_boxes)
-			print(self.items.delivered,"of",self.items.num_boxes,"collected =",sr*100,"%")
-			print("in",self.robots.counter,"seconds")
+			print(self.items.delivered)
+			#print(self.items.delivered,"of",self.items.num_boxes,"collected =",sr*100,"%")
+#			print("in",self.robots.counter,"seconds")
 		if self.anim == True:
 			self.ani()
 			

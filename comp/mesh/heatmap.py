@@ -26,8 +26,12 @@ def get_times(time):
 	for r in range(len(robots)):
 		for b in range(len(boxes)):
 			times[b,r] = time[robots[r]][boxes[b]]#/boxes[b]
-			
-			#if time[robots[r]][boxes[b]] < max_time and time[robots[r]][boxes[b]] > min_time:
+			if boxes[b] == 50:
+				print(robots[r])
+				print(times[b,r])
+				
+	print("--")
+#if time[robots[r]][boxes[b]] < max_time and time[robots[r]][boxes[b]] > min_time:
 				#times[b,r] = time[robots[r]][boxes[b]]
 			#if times[b,r] < min_time:
 			#	min_time = times[b,r]
@@ -53,40 +57,45 @@ def get_times(time):
 	return times
 
 fig, ax = plt.subplots(nrows=1,ncols=2,sharex=True,sharey=True)
-#time_1 = file_opener("task_1_new")
-#time_3 = file_opener("task_2_new")
+time_1 = file_opener("task_1_new")
+time_3 = file_opener("task_2_new")
 #time_3 = file_opener("task2_nov_results")
-time_3 = file_opener("task_2_w_bias_new")
+time_4 = file_opener("task_2_w_bias_new")
 #time_3 = file_opener("task_2_mesh")
 #time_new = file_opener("times_newideas") #task 1 only 
 time_2 = file_opener("task1_mesh11_new")
-time_1 = file_opener("task_1_w_bias_new")
-time_4 = file_opener("task2_mesh1_new")
+#time_2 = file_opener("task_1_w_bias_new")
+#time_4 = file_opener("task2_mesh1_new")
+#for r in range(10,51,5):
+#	time_D = []
+#	for b in range(10,51,5):
+#		time_D.append(time_1[r][b])
+#	print(time_D)
 
-for j in range(2,4):
+for j in range(0,2):
 	if j == 0: 
 		times = get_times(time_1)
-		title = "Unordered retrieval with bias"
+		title = "Unordered retrieval"
 		#i = 0,0
 		i = 0 
 	if j == 1: 
 		times = get_times(time_2)
-		title = "Unordered retrieval with mesh 1"
+		title = "Unordered retrieval with bias"
 		#i = 0,1
 		i = 1
 	if j == 2: 
 		times = get_times(time_3)
-		title = "Ordered retrieval with bias"
+		title = "Ordered retrieval"
 		#i = 1,0
 		i = 0 
 	if j == 3: 
 		times = get_times(time_4)
-		title = "Ordered retrieval with mesh"
+		title = "Ordered retrieval with bias"
 		#i = 1,1
 		i = 1
 	
 	#print(i)
-	im1 = ax[i].imshow(times, cmap= "jet",vmin=0,vmax=25000)#"Greys_r")#, clim=(0,16000))
+	im1 = ax[i].imshow(times, cmap= "rainbow")#,vmin=0,vmax=25000)#"Greys_r")#, clim=(0,16000))
 	cbar = ax[i].figure.colorbar(im1, ax=ax[i])
 	ax[i].set_title(title,fontsize =  15)
 	cbar.set_label("Time taken (s)",fontsize = 15 )

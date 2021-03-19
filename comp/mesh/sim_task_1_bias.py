@@ -31,7 +31,7 @@ radius = 12.5 # Radius of single agent (half of 25)
 width = 500 # Width of warehouse (100)
 height = 500 # Height (depth) of warehouse (100)
 speed = 2 # Agent speed (0.5)
-repulsion_distance = radius/2 # Distance at which repulsion is first felt (3)
+repulsion_distance = radius*2 # Distance at which repulsion is first felt (3)
 
 box_radius = radius # radius of the box is the same as the robots
 box_range = 2*box_radius # range at which a box can be picked up 
@@ -51,7 +51,38 @@ class boxes():
 		self.radius = box_radius # physical radius of the box (approximated to a circle even though square in animation)
 		self.check_b = np.ones(self.num_boxes) # Box states set to 1 = Free (not on a robots), if = 0 = Not free (on a robot)
 		self.delivered = 0 # Number of boxes that have been delivered 
-		self.box_c = np.random.randint(box_radius*2,width-box_radius-exit_width,(self.num_boxes,2)) # box_c is the centre coordinate of the box which starts at a random position within the warehouse
+		self.box_c = []
+		num_x = int((width)/(radius*2))
+		num_y = int((height)/(radius*2))
+		sum_n = self.num_boxes+robots.num_agents
+		if sum_n > num_x*num_y:
+			print("Error: density of objects is too high for warehouse")
+			exit()
+		list_n = []
+		for x in range(num_x):
+			for y in range(num_y):
+				list_n.append([x,y])
+		XY = random.sample(list_n,sum_n)
+		x_c = radius + (radius*2)*np.arange(0,num_x)
+		y_c = radius + (radius*2)*np.arange(0,num_y)
+		c = np.zeros([num_x,num_y,2])
+		x_c = x_c.tolist()
+		y_c = y_c.tolist()
+		for n in range(num_x):
+			c[n,:,0] = x_c[n]
+		for n in range(num_y):
+			c[:,n,1] = y_c[n]
+		c_select = []
+		for j in range(sum_n):
+			n = c[XY[j][0],XY[j][1],:]
+			c_select.append(n.tolist())
+		for b in range(self.num_boxes):
+			self.box_c.append(c_select[b])
+		for r in range(robots.num_agents):
+			robots.rob_c.append(c_select[r+self.num_boxes])
+		self.box_c = np.array(self.box_c)
+		robots.rob_c = np.array(robots.rob_c)
+		#self.box_c = np.random.randint(box_radius*2,width-box_radius-exit_width,(self.num_boxes,2)) # box_c is the centre coordinate of the box which starts at a random position within the warehouse
 		self.box_d = np.zeros((self.num_boxes,2)) # box centre coordinate deviation (how far the box moves in one time step)
 		self.gone = np.ones(self.num_boxes) # set box state 'gone' as 1 meaning NOT DELIVERED ie gone from warehouse (0 is delivered)
 		self.robot_carrier = np.full((self.num_boxes),-1) # Value at index = box number is the robot number that is currently moving that box
@@ -63,7 +94,8 @@ class swarm():
 		self.num_agents = num_agents # Swarm size
 		self.check_r = np.ones(self.num_agents) # Robot states set to 1 = Free (no box), if = 0 = Not free (has a box)
 		self.heading = 0.0314*np.random.randint(-100,100,self.num_agents) # initial heading for all robots is randomly chosen
-		self.rob_c = np.random.randint(box_radius*2,width-box_radius-exit_width,(self.num_agents,2)) # rob_c is the centre coordinate of the agent which starts at a random position within the warehouse 
+		self.rob_c = []
+	#	self.rob_c = np.random.randint(box_radius*2,width-box_radius-exit_width,(self.num_agents,2)) # rob_c is the centre coordinate of the agent which starts at a random position within the warehouse 
 		self.counter = 0 # time starts at 0s or time step = 0 
 		self.rob_d = np.zeros((self.num_agents,2)) # robot centre cooridinate deviation (how much the robot moves in one time step)
 		self.beyond_r = np.zeros(self.num_agents) # Boolean list of robots that are over the delivery boundary (1 is in the delivery area)
@@ -118,14 +150,18 @@ def random_walk(swarm,boxes):
 	
 	# Compute (euclidean == cdist) distance between agents
 	agent_distance = cdist(swarm.rob_c, swarm.rob_c)	# distance between all the agents to all the agents
+	too_close = agent_distance < 2*(1+radius)
 	box_dist = cdist(boxes.box_c,swarm.rob_c) # distance between all the boxes and all the agents
+	too_close_boxes = box_dist< 2*(1+radius)
+
 	# Compute vectors between agents
 	proximity_to_robots = swarm.rob_c[:,:,np.newaxis]-swarm.rob_c.T[np.newaxis,:,:] 
 	proximity_to_boxes = boxes.box_c[:,:,np.newaxis] - swarm.rob_c.T[np.newaxis,:,:]
 	
 	# Calc repulsion vector on agents due to proximity to (none moving) boxes
 	# Equation chosen so that the repulsion is proportional to the distance and influence factor (R_box). It is high at close range and low at far
-	F_box = R_box*r*np.exp(-box_dist/r)[:,np.newaxis,:]*proximity_to_boxes/(swarm.num_agents-1)	
+	#F_box = R_box*r*np.exp(-box_dist/r)[:,np.newaxis,:]*proximity_to_boxes/(swarm.num_agents-1)	
+	F_box = too_close_boxes[:,np.newaxis,:]*proximity_to_boxes
 	F_box = np.sum(F_box,axis=0) # sum the repulsion vectors due to boxes on the agents
 	
 	not_free = swarm.check_r == 0 # list of boxes that are sitting in the warehouse not picked up 
@@ -134,9 +170,9 @@ def random_walk(swarm,boxes):
 	
 	# Calc repulsion vector on agent due to proximity to other agents
 	# Equation chosen so that the repulsion is proportional to the distance and influence factor (R_rob). It is high at close range and low at far
-	F_agent = R_rob*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_to_robots/(swarm.num_agents-1)	
+	#F_agent = R_rob*r*np.exp(-agent_distance/r)[:,np.newaxis,:]*proximity_to_robots/(swarm.num_agents-1)
+	F_agent = too_close[:,np.newaxis,:]*proximity_to_robots
 	F_agent = np.sum(F_agent, axis =0).T # sum the repulsion vectors
-	
 	# Force on agent due to proximity to walls
 	F_wall_avoidance = avoidance(swarm.rob_c, swarm.map)
 
@@ -144,12 +180,15 @@ def random_walk(swarm,boxes):
 	F_agent += F_wall_avoidance + F_heading + F_box.T
 	F_x = F_agent.T[0] # Repulsion vector in x
 	F_y = F_agent.T[1] # in y 
+	#Fx_still = abs(F_x) > 0.1
+	#Fy_still = abs(F_y) > 0.1
 	
 	# New movement due to repulsion vectors
 	new_heading = np.arctan2(F_y, F_x) # new heading due to repulsions
 	move_x = swarm.speed*np.cos(new_heading) # Movement in x 
 	move_y = swarm.speed*np.sin(new_heading) # Movement in y 
-	
+	#move_x = move_x*Fx_still
+	#move_y = move_y*Fy_still
 	# Total change in movement of agent (robot deviation)
 	swarm.rob_d = -np.array([[move_x[n], move_y[n]] for n in range(0, swarm.num_agents)])
 	return swarm.rob_d
